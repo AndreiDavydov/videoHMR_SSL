@@ -1,0 +1,85 @@
+# @autodeps
+
+load("@fbcode_macros//build_defs:python_binary.bzl", "python_binary")
+load("@fbcode_macros//build_defs:python_library.bzl", "python_library")
+load("@fbsource//tools/build_defs:glob_defs.bzl", "glob")
+load("//bento:buck_macros.bzl", "bento_kernel")
+
+oncall("xr_people_zurich")
+
+python_library(
+    name = "hmr_lib",
+    srcs = glob([
+        "*.py",
+        "run/*.py",
+        "src/*.py",
+        "src/*/*.py",
+        "src/*/*/*.py",
+    ]),
+    base_module = "",
+    py_version = ">3",
+    deps = [
+        "fbsource//third-party/pypi/easydict:easydict",
+        "fbsource//third-party/pypi/imageio:imageio",
+        "fbsource//third-party/pypi/joblib:joblib",
+        "fbsource//third-party/pypi/kornia:kornia",
+        "fbsource//third-party/pypi/matplotlib:matplotlib",
+        "fbsource//third-party/pypi/numpy:numpy",
+        "fbsource//third-party/pypi/pillow:pillow",
+        "fbsource//third-party/pypi/pyyaml:pyyaml",
+        "fbsource//third-party/pypi/scikit-image:scikit-image",
+        "fbsource//third-party/pypi/scipy:scipy",
+        "fbsource//third-party/pypi/tqdm:tqdm",
+        "//caffe2:torch",
+        "//fair_infra/data/iopath/iopath:core",
+        "//mobile-vision/d2go/projects/body_tracking:smplx",
+        "//pytorch/vision:torchvision",
+        "//vision/fair/pytorch3d/pytorch3d:pytorch3d",
+    ],
+    external_deps = [
+        ("opencv3", None, "opencv3-py"),
+    ],
+)
+
+python_binary(
+    name = "run_hmr_inference",
+    srcs = [
+        "run/run_hmr_inference.py",
+    ],
+    main_module = "ar_sharing.body_tracking_3d.models.hmr.run.run_hmr_inference",
+    py_version = ">=3",
+    deps = [
+        "fbsource//third-party/pypi/numpy:numpy",
+        "fbsource//third-party/pypi/tqdm:tqdm",
+        ":hmr_lib",
+        "//caffe2:torch",
+        "//fair_infra/data/iopath/iopath:core",
+    ],
+)
+
+python_binary(
+    name = "run_proc",
+    srcs = [
+        "run/run_proc.py",
+    ],
+    main_module = "ar_sharing.body_tracking_3d.models.hmr.run.run_proc",
+    py_version = ">=3",
+    deps = [
+        ":hmr_lib",
+        "//fair_infra/data/iopath/iopath:core",
+    ],
+)
+
+bento_kernel(
+    name = "body_tracking",
+    par_style = "live",
+    deps = [
+        ":hmr_lib",
+    ],
+)
+
+### to build a bento kernel:
+# bento kernel build  @mode/opt -c fbcode.enable_gpu_sections=true -c python.package_style=inplace //ar_sharing/body_tracking_3d/models/hmr:bento_kernel_body_tracking
+
+### to build and run buck (for dummy training):
+# buck run  @mode/dev-nosan  -c fbcode.enable_gpu_sections=true  -c  python.package_style=inplace  ar_sharing/body_tracking_3d/models/hmr:run_proc -- --cfg ar_sharing/body_tracking_3d/models/hmr/configs/test_run.yaml
