@@ -1,0 +1,56 @@
+GPUS : '0' # string of gpu indices, comma-separated
+PRINT_FREQ : 200 # how often to print loss status
+SAVE_EVERY_EPOCH : 20 # how often to save checkpoints
+ADD_TIMESTAMP : False
+
+OUTPUT_DIR : '/tmp/testrun' # folder to save results (will be created if does not exist)
+
+MODELS : # dict of models to use
+  dummynet :
+    DIR : 'dummy'
+    ARCH : 'DummyNet'
+    PARAMS :
+      input_size : 5
+      hidden_state : 128
+      output_size : 5
+      nonlin : relu
+
+LOSSES : # dict of losses to use
+  # training losses
+  dummyloss :
+    DIR : 'dummy'
+    NAME : 'DummyLoss'
+
+OPTIM : # dict of optimizers to use
+  dummynet :
+    NAME : 'Adam'
+    PARAMS :
+      lr : 0.0002
+      betas : [0.5, 0.999]
+
+DATASETS : # dict of datasets to use
+  train :
+    DIR : 'dummy'
+    NAME : 'DummyDataset'
+    PARAMS :
+      n : 1_000
+
+DATALOAD : # dict of dataloaders to use (must have same names as datasets)
+  train :
+    NUM_ITERATIONS_PER_EPOCH : 100 # 1 epoch == # of iterations, not run over whole dataset
+    PARAMS :
+      shuffle : True
+      batch_size : 32
+      num_workers : 0
+
+TRAINING :
+  END_EPOCH : 2
+  RESUME : "auto"
+
+PROCEDURE : 'dummy' # file src/procedures/procedures/<PROCEDURE>.py with "train" and "valid" functions
+
+EXP_NAME : 'test_run' # name of the experiment
+
+VALID_FIRST : True # flag to run additional validation before starting the training
+
+FAKERUN : False # if True, does proper saving/loading/logging. If False, use for debug

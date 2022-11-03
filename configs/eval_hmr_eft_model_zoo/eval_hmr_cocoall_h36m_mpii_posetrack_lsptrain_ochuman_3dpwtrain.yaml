@@ -1,0 +1,59 @@
+GPUS : '0'
+
+OUTPUT_DIR : '/tmp/eval_hmr'
+
+MODELS :
+  hmrnet :
+    DIR : 'hmr'
+    ARCH : 'hmr'
+    PARAMS :
+      pretrained : True
+
+SMPL :
+  j_regr : 'h36m' # J14
+
+DATASETS :
+  eval :
+    DIR : 'threedpw'
+    NAME : 'ThreeDPW'
+    PARAMS :
+      set : "test"
+      seqlen : 16
+      debug : True
+
+DATALOAD :
+  eval :
+    PARAMS :
+      shuffle : False
+      batch_size : 16
+      num_workers : 8
+
+LOSSES :
+  mpjpe :
+    DIR : 'pose_eval'
+    NAME : 'MPJPE'
+  pa_mpjpe :
+    DIR : 'pose_eval'
+    NAME : 'PAMPJPE'
+  mpvpe :
+    DIR : 'pose_eval'
+    NAME : 'MPVPE'
+  accel :
+    DIR : 'pose_eval'
+    NAME : 'Acceleration'
+  accel_err :
+    DIR : 'pose_eval'
+    NAME : 'AccelerationError'
+
+TRAINING :
+  END_EPOCH : 1 # evaluation
+  RESUME :
+    CKPT : "manifold://xr_body/tree/personal/andreydavydov/eft_model_zoo/2020_05_31-00_50_43-best-51.749683916568756_fixed.pt"
+    LOAD_MODELS_ONLY : True
+
+
+PROCEDURE : 'eval_hmr'
+
+EXP_NAME : 'eval_hmr__eft_cocoall_h36m_mpii_posetrack_lsptrain_ochuman_3dpwtrain'
+
+VALID_FIRST : True

@@ -1,0 +1,91 @@
+GPUS : '0'
+SAVE_EVERY_EPOCH : 1
+PRINT_FREQ : 100
+
+OUTPUT_DIR : '/tmp/seq_optim'
+
+MODELS :
+  seqOpt :
+    DIR : 'seq_optim'
+    ARCH : 'SeqModel'
+    PARAMS :
+      seq_path : "manifold://xr_body/tree/personal/andreydavydov/3dpw_seq_for_tests/sample_3dpw_test_seq_downtown_runForBus_01_0__hmr_coco_all.pth"
+      seq_num_frames : 339
+
+OPTIM :
+  seqOpt :
+    NAME : 'Adam'
+    PARAMS :
+      lr : 0.0001
+      betas : [0.5, 0.999]
+      weight_decay : 0
+
+LOSSES :
+  ### optimization terms
+  shape_smooth :
+    DIR : 'seq_optim'
+    NAME : 'AvgSmoother'
+    WEIGHT : 0.1
+    PARAMS :
+      kernel_size : 30
+      data_consistency_w : 1.0
+  j3d_smooth :
+    DIR : 'seq_optim'
+    NAME : 'AvgSmoother'
+    PARAMS :
+      kernel_size : 30
+    WEIGHT : 10.
+  verts_smooth :
+    DIR : 'seq_optim'
+    NAME : 'AvgSmoother'
+    PARAMS :
+      kernel_size : 30
+    WEIGHT : 0.
+
+  ### these are the trackers mostly
+  pose2d :
+    DIR : 'pose_eval'
+    NAME : 'Keypoint2DPixelAlignment'
+  mpjpe_vs_gt :
+    DIR : 'pose_eval'
+    NAME : 'MPJPE'
+  mpjpe_vs_0 :
+    DIR : 'pose_eval'
+    NAME : 'MPJPE'
+  pa_mpjpe_vs_gt :
+    DIR : 'pose_eval'
+    NAME : 'PAMPJPE'
+  pa_mpjpe_vs_0 :
+    DIR : 'pose_eval'
+    NAME : 'PAMPJPE'
+  mpvpe_vs_gt :
+    DIR : 'pose_eval'
+    NAME : 'MPVPE'
+  mpvpe_vs_0 :
+    DIR : 'pose_eval'
+    NAME : 'MPVPE'
+  pa_mpvpe_vs_gt :
+    DIR : 'pose_eval'
+    NAME : 'PAMPVPE'
+  pa_mpvpe_vs_0 :
+    DIR : 'pose_eval'
+    NAME : 'PAMPVPE'
+  accel :
+    DIR : 'pose_eval'
+    NAME : 'Acceleration'
+  accel_err_vs_gt :
+    DIR : 'pose_eval'
+    NAME : 'AccelerationError'
+  accel_err_vs_0 :
+    DIR : 'pose_eval'
+    NAME : 'AccelerationError'
+
+PROCEDURE : 'seq_optim__temp_smooth'
+
+TRAINING :
+  END_EPOCH : 100
+  NUM_ITERATIONS : 100
+
+EXP_NAME : 'seq_optim__coco-all__3dpw_test_seq_339__temp_smooth__shape_0_1__j3d_10__ker30__lr_1e-4'
+
+VALID_FIRST : True # evaluation first

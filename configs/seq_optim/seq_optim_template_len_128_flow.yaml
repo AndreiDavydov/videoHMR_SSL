@@ -1,0 +1,80 @@
+GPUS : '0'
+SAVE_EVERY_EPOCH : 1
+PRINT_FREQ : 20
+
+OUTPUT_DIR : '/tmp/seq_optim_flow_len128'
+
+MODELS :
+  seqOpt :
+    DIR : 'seq_optim'
+    ARCH : 'SeqModel'
+    PARAMS :
+      seq_path : "manifold://xr_body/tree/personal/andreydavydov/3dpw_seq_for_tests/len128/"
+      optical_flow_presaved : "manifold://xr_body/tree/personal/andreydavydov/3dpw_seq_for_tests/len128/optical_flow_presaved/"
+
+OPTIM :
+  seqOpt :
+    NAME : 'Adam'
+    PARAMS :
+      lr : 0.0001
+      betas : [0.5, 0.999]
+      weight_decay : 0
+
+LOSSES :
+  ### optimization terms
+  flow_2d :
+    DIR : 'optical_flow'
+    NAME : 'Flow2DLoss'
+    WEIGHT : 1.
+  flow_3d :
+    DIR : 'optical_flow'
+    NAME : 'Flow3DLoss'
+    WEIGHT : 0.
+
+  ### these are the trackers mostly
+  pose2d :
+    DIR : 'pose_eval'
+    NAME : 'Keypoint2DPixelAlignment'
+  mpjpe_vs_gt :
+    DIR : 'pose_eval'
+    NAME : 'MPJPE'
+  mpjpe_vs_0 :
+    DIR : 'pose_eval'
+    NAME : 'MPJPE'
+  pa_mpjpe_vs_gt :
+    DIR : 'pose_eval'
+    NAME : 'PAMPJPE'
+  pa_mpjpe_vs_0 :
+    DIR : 'pose_eval'
+    NAME : 'PAMPJPE'
+  mpvpe_vs_gt :
+    DIR : 'pose_eval'
+    NAME : 'MPVPE'
+  mpvpe_vs_0 :
+    DIR : 'pose_eval'
+    NAME : 'MPVPE'
+  pa_mpvpe_vs_gt :
+    DIR : 'pose_eval'
+    NAME : 'PAMPVPE'
+  pa_mpvpe_vs_0 :
+    DIR : 'pose_eval'
+    NAME : 'PAMPVPE'
+  accel :
+    DIR : 'pose_eval'
+    NAME : 'Acceleration'
+  accel_err_vs_gt :
+    DIR : 'pose_eval'
+    NAME : 'AccelerationError'
+  accel_err_vs_0 :
+    DIR : 'pose_eval'
+    NAME : 'AccelerationError'
+
+PROCEDURE : 'seq_optim_flow'
+
+TRAINING :
+  END_EPOCH : 100
+  NUM_ITERATIONS : 20
+
+EXP_NAME : 'seq_optim__coco_all__3dpw_test_len128__flow2d__'
+
+VALID_FIRST : True # evaluation first
