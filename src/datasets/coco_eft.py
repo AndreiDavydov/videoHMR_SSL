@@ -17,7 +17,7 @@ from src.datasets.datasets_common import NORMALIZE
 # pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
 # COCO_EFT_IMG_FOLDER = "manifold://fair_vision_data/tree/coco_train2014_oct_15_2018/"
-COCO_EFT_IMG_FOLDER = "/cvlabsrc1/cvlab/dataset_COCO2014/"
+COCO_EFT_IMG_FOLDER = "/cvlabsrc1/cvlab/dataset_COCO2014/train2014/"
 
 # COCO_EFT_IMG_ZIP = (
 #     "manifold://xr_body/tree/personal/andreydavydov/eft/coco_train2014_oct_15_2018.zip"

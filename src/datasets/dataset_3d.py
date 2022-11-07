@@ -27,7 +27,8 @@ import torch
 
 from torch.utils.data import Dataset
 
-DB_DIR = "manifold://xr_body/tree/personal/andreydavydov/datasets_3d_processed/"
+# DB_DIR = "manifold://xr_body/tree/personal/andreydavydov/datasets_3d_processed/"
+DB_DIR = "/cvlabdata2/home/davydov/videoHMR_SSL/datasets_3d_processed/"
 import src.utils.img_utils_datasets_3d as utils
 from skimage.util.shape import view_as_windows
 

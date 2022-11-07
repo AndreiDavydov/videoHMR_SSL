@@ -1,7 +1,7 @@
 from os.path import join as ospjoin
 from time import time
 
-import src.utils.manifold_utils as manifold
+# import src.utils.manifold_utils as manifold
 
 import torch
 
@@ -151,7 +151,7 @@ def valid(trainer):
         f"fig_epoch{trainer.cur_epoch:05d}_batch{batch_idx:05d}.png",
     )
     fig.savefig(local_fig)
-    manifold.copy_file_from_local(local_fig, trainer.remote_exp_dir)
+    # manifold.copy_file_from_local(local_fig, trainer.remote_exp_dir)
 
     total_time = time() - absolute_start
     status_msg(trainer, batch_idx, 1, trainer.meters.valid.kpts2d_loss, total_time)
