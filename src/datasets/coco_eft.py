@@ -16,12 +16,15 @@ from src.datasets.datasets_common import NORMALIZE
 # pathmgr = PathManager()
 # pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
-COCO_EFT_IMG_FOLDER = "manifold://fair_vision_data/tree/coco_train2014_oct_15_2018/"
-COCO_EFT_IMG_ZIP = (
-    "manifold://xr_body/tree/personal/andreydavydov/eft/coco_train2014_oct_15_2018.zip"
-)
-COCO_EFT_IMG_FOLDER_LOCAL = "/tmp/coco_train/"
-COCO_EFT_JSON_FILE = "manifold://xr_body/tree/personal/andreydavydov/eft/eft_fit/COCO2014-All-ver01.json"  # 74834 samples in COCO2014
+# COCO_EFT_IMG_FOLDER = "manifold://fair_vision_data/tree/coco_train2014_oct_15_2018/"
+COCO_EFT_IMG_FOLDER = "/cvlabsrc1/cvlab/dataset_COCO2014/"
+
+# COCO_EFT_IMG_ZIP = (
+#     "manifold://xr_body/tree/personal/andreydavydov/eft/coco_train2014_oct_15_2018.zip"
+# )
+# COCO_EFT_IMG_FOLDER_LOCAL = "/tmp/coco_train/"
+# COCO_EFT_JSON_FILE = "manifold://xr_body/tree/personal/andreydavydov/eft/eft_fit/COCO2014-All-ver01.json"  # 74834 samples in COCO2014
+COCO_EFT_JSON_FILE = "/cvlabsrc1/cvlab/dataset_EFT/eft/eft_fit/COCO2014-All-ver01.json"  # 74834 samples in COCO2014
 
 
 def _load_kpts(kpts_path):
