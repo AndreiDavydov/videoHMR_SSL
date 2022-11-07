@@ -3,12 +3,12 @@
 import os
 import shutil
 
-from iopath.common.file_io import PathManager
-from iopath.fb.manifold import ManifoldPathHandler
+# from iopath.common.file_io import PathManager
+# from iopath.fb.manifold import ManifoldPathHandler
 from src.datasets.dataset_3d import Dataset3D
 
-pathmgr = PathManager()
-pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+# pathmgr = PathManager()
+# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
 THREEDPW_DIR = "manifold://xr_body/tree/personal/andreydavydov/3dpw/"
 THREEDPW_DIR_LOCAL = "/tmp/3dpw/"
@@ -16,19 +16,20 @@ THREEDPW_DIR_LOCAL = "/tmp/3dpw/"
 
 class ThreeDPW(Dataset3D):
     def __init__(self, set, seqlen, overlap=0.75, debug=False, copy_to_local=True):
-        if copy_to_local:
-            ### copy zip to local
-            images_zip = pathmgr.get_local_path(
-                os.path.join(THREEDPW_DIR, "imageFiles.zip")
-            )
-            ### unarchive
-            if not os.path.exists(os.path.join(THREEDPW_DIR_LOCAL, "imageFiles")):
-                os.makedirs(THREEDPW_DIR_LOCAL)
-                shutil.unpack_archive(images_zip, THREEDPW_DIR_LOCAL)
+        # if copy_to_local:
+        #     ### copy zip to local
+        #     images_zip = pathmgr.get_local_path(
+        #         os.path.join(THREEDPW_DIR, "imageFiles.zip")
+        #     )
+        #     ### unarchive
+        #     if not os.path.exists(os.path.join(THREEDPW_DIR_LOCAL, "imageFiles")):
+        #         os.makedirs(THREEDPW_DIR_LOCAL)
+        #         shutil.unpack_archive(images_zip, THREEDPW_DIR_LOCAL)
 
-            image_files_dir = THREEDPW_DIR_LOCAL
-        else:
-            image_files_dir = THREEDPW_DIR
+        #     image_files_dir = THREEDPW_DIR_LOCAL
+        # else:
+        #     image_files_dir = THREEDPW_DIR
+        image_files_dir = THREEDPW_DIR
 
         db_name = "3dpw"
 

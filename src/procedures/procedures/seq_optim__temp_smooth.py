@@ -1,13 +1,13 @@
 from time import time
 
-from iopath.common.file_io import PathManager
-from iopath.fb.manifold import ManifoldPathHandler
+# from iopath.common.file_io import PathManager
+# from iopath.fb.manifold import ManifoldPathHandler
 
 from src.functional import smpl
 from src.procedures.procedures_common import status_msg
 
-pathmgr = PathManager()
-pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+# pathmgr = PathManager()
+# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
 
 def setup(trainer):

@@ -1,13 +1,13 @@
 import torch
 import torch.nn as nn
 
-from iopath.common.file_io import PathManager
-from iopath.fb.manifold import ManifoldPathHandler
+# from iopath.common.file_io import PathManager
+# from iopath.fb.manifold import ManifoldPathHandler
 from kornia.geometry import rotation_matrix_to_angle_axis as mat_to_aa
 from src.utils.img_utils import weakProjection
 
-pathmgr = PathManager()
-pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+# pathmgr = PathManager()
+# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
 
 def get_smpl_out(shape, pose, camera, smpl_model, pose2rot=True):
@@ -36,11 +36,13 @@ class SeqModel(torch.nn.Module):
 
         if optical_flow_presaved is not None:
             self.optical_flow = torch.load(
-                pathmgr.get_local_path(optical_flow_presaved)
+                # pathmgr.get_local_path(optical_flow_presaved)
+                optical_flow_presaved
             )
 
     def init_seq(self, f, num):
-        seq = torch.load(pathmgr.get_local_path(f))
+        # seq = torch.load(pathmgr.get_local_path(f))
+        seq = torch.load(f)
         for k in seq:
             seq[k] = seq[k][:num]  # keep only num frames
         ### keys of the sequence:

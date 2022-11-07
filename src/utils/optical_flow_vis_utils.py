@@ -173,14 +173,15 @@ def get_max_flow(flow):
 
 if __name__ == "__main__":
 
-    from iopath.common.file_io import PathManager
-    from iopath.fb.manifold import ManifoldPathHandler
+    # from iopath.common.file_io import PathManager
+    # from iopath.fb.manifold import ManifoldPathHandler
 
-    pathmgr = PathManager()
-    pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+    # pathmgr = PathManager()
+    # pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
     of_sample = "manifold://xr_body/tree/personal/andreydavydov/raft/sample_for_tests/optical_flow_sample.npy"
-    d = np.load(pathmgr.get_local_path(of_sample), allow_pickle=True).tolist()
+    # d = np.load(pathmgr.get_local_path(of_sample), allow_pickle=True).tolist()
+    d = np.load(of_sample, allow_pickle=True).tolist()
 
     rt_power = 0.6
     img = d["img"]

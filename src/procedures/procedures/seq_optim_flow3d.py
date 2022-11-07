@@ -1,8 +1,8 @@
 from time import time
 
 import torch
-from iopath.common.file_io import PathManager
-from iopath.fb.manifold import ManifoldPathHandler
+# from iopath.common.file_io import PathManager
+# from iopath.fb.manifold import ManifoldPathHandler
 from src.functional import smpl
 
 from src.functional.optical_flow import (
@@ -16,8 +16,8 @@ from src.procedures.procedures.seq_optim__temp_smooth import valid as valid_on_s
 from src.procedures.procedures_common import status_msg
 
 
-pathmgr = PathManager()
-pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+# pathmgr = PathManager()
+# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
 
 def setup(trainer):

@@ -1,5 +1,6 @@
 import torch
-from body_tracking.smplx.lbs import batch_rodrigues
+# from body_tracking.smplx.lbs import batch_rodrigues
+from smplx.lbs import batch_rodrigues
 
 
 class SmplPoseLoss(torch.nn.Module):

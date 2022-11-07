@@ -7,13 +7,13 @@ import src
 import torch
 from easydict import EasyDict as edict
 
-from iopath.common.file_io import PathManager
-from iopath.fb.manifold import ManifoldPathHandler
+# from iopath.common.file_io import PathManager
+# from iopath.fb.manifold import ManifoldPathHandler
 
-pathmgr = PathManager()
-pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+# pathmgr = PathManager()
+# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
-import src.utils.manifold_utils as manifold
+# import src.utils.manifold_utils as manifold
 
 
 class Trainer:
@@ -44,15 +44,15 @@ class Trainer:
             log_filepath,
         ) = src.utils.utils.create_logger(self.final_output_dir, self.cfg)
 
-        ### create remote exp folder
-        self.remote_exp_dir = manifold.mkdir_remote(
-            self.cfg.EXP_NAME, add_subfolder=self.cfg.OUTPUT_DIR.split("/")[-1]
-        )
-        ### copy logger file from local
-        self.remote_log_file = log_filepath
-        manifold.copy_file_from_local(self.remote_log_file, self.remote_exp_dir)
-        ### copy cfg from local
-        manifold.copy_file_from_local(self.cfg.CONFIG_FILENAME, self.remote_exp_dir)
+        # ### create remote exp folder
+        # self.remote_exp_dir = manifold.mkdir_remote(
+        #     self.cfg.EXP_NAME, add_subfolder=self.cfg.OUTPUT_DIR.split("/")[-1]
+        # )
+        # ### copy logger file from local
+        # self.remote_log_file = log_filepath
+        # manifold.copy_file_from_local(self.remote_log_file, self.remote_exp_dir)
+        # ### copy cfg from local
+        # manifold.copy_file_from_local(self.cfg.CONFIG_FILENAME, self.remote_exp_dir)
 
         self.print_freq = self.cfg.PRINT_FREQ
 
@@ -132,7 +132,7 @@ class Trainer:
         state2save["perf_indicator_best"] = self.perf_indicator_best
         ckpt_path = joinpath(self.final_output_dir, "ckpt.pth")
         torch.save(state2save, ckpt_path)
-        manifold.copy_file_from_local(ckpt_path, self.remote_exp_dir)
+        # manifold.copy_file_from_local(ckpt_path, self.remote_exp_dir)
 
         ### save ckpts to avoid incident errors during saving
         if (
@@ -143,26 +143,26 @@ class Trainer:
                 self.final_output_dir, f"ckpt_{self.cur_epoch:04d}.pth"
             )
             torch.save(state2save, ckpt_path)
-            manifold.copy_file_from_local(ckpt_path, self.remote_exp_dir)
+            # manifold.copy_file_from_local(ckpt_path, self.remote_exp_dir)
         if best:
             self.logger.info(
                 f"=> Epoch [{self.cur_epoch}] - THE BEST MODEL SO FAR...\n"
             )
             ckpt_path = joinpath(self.final_output_dir, "best.pth")
             torch.save(state2save, ckpt_path)
-            manifold.copy_file_from_local(ckpt_path, self.remote_exp_dir)
+            # manifold.copy_file_from_local(ckpt_path, self.remote_exp_dir)
 
         for mode in self.meters:
             for loss_type in self.meters[mode]:
                 self.meters[mode][loss_type].save_state(self.final_output_dir)
 
         self.local_metrics_dir = os.path.join(self.final_output_dir, "metrics")
-        manifold.copy_folder_from_local(self.local_metrics_dir, self.remote_exp_dir)
+        # manifold.copy_folder_from_local(self.local_metrics_dir, self.remote_exp_dir)
 
         self.logger.info(
             f"=> Epoch [{self.cur_epoch}], checkpoint is saved to {self.final_output_dir}"
         )
-        manifold.copy_file_from_local(self.remote_log_file, self.remote_exp_dir)
+        # manifold.copy_file_from_local(self.remote_log_file, self.remote_exp_dir)
 
     def load_models(self, ckpt):
         for model in self.models:
@@ -179,7 +179,8 @@ class Trainer:
 
     def load_checkpoint(self, ckpt):
         if isinstance(ckpt, str):
-            ckpt_dict = torch.load(pathmgr.get_local_path(ckpt), map_location="cpu")
+            # ckpt_dict = torch.load(pathmgr.get_local_path(ckpt), map_location="cpu")
+            ckpt_dict = torch.load(ckpt, map_location="cpu")
 
         elif isinstance(ckpt, list):
             # NOTE all state dicts are combined together
@@ -231,7 +232,9 @@ class Trainer:
 
     def autoresume(self, cfg):
         ### for the presaved ckpt and start from it
-        ckpt_path = os.path.join(self.remote_exp_dir, "ckpt.pth")
+        # ckpt_path = os.path.join(self.remote_exp_dir, "ckpt.pth")
+        ckpt_path = os.path.join(self.final_output_dir, "ckpt.pth")
+        
         cfg.TRAINING.RESUME = edict()
         cfg.TRAINING.RESUME.CKPT = ckpt_path
         try:
@@ -303,9 +306,9 @@ class Trainer:
         for _ in range(self.cur_epoch, self.end_epoch + 1):
             self.proc(self)
             self.cur_epoch += 1
-            manifold.copy_file_from_local(self.remote_log_file, self.remote_exp_dir)
+            # manifold.copy_file_from_local(self.remote_log_file, self.remote_exp_dir)
 
         self.logger.info(
             f'\nTraining of "{self.cfg.EXP_NAME}" experiment is finished. \n'
         )
-        manifold.copy_file_from_local(self.remote_log_file, self.remote_exp_dir)
+        # manifold.copy_file_from_local(self.remote_log_file, self.remote_exp_dir)

@@ -2,17 +2,22 @@ from collections import namedtuple
 
 import numpy as np
 import torch
-from body_tracking.smplx import SMPL as _SMPL
-from body_tracking.smplx.lbs import vertices2joints
+# from body_tracking.smplx import SMPL as _SMPL
+# from body_tracking.smplx.lbs import vertices2joints
+from smplx import SMPL as _SMPL
+from smplx.lbs import vertices2joints
 
-from iopath.common.file_io import PathManager
-from iopath.fb.manifold import ManifoldPathHandler
+# from iopath.common.file_io import PathManager
+# from iopath.fb.manifold import ManifoldPathHandler
 
-pathmgr = PathManager()
-pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
-SMPL_MODEL_PATH = "manifold://xr_body/tree/personal/andreydavydov/eft/extradata/smpl/basicModel_neutral_lbs_10_207_0_v1.0.0.pkl"
-JOINT_REGRESSOR_EXTRA = "manifold://xr_body/tree/personal/andreydavydov/eft/extradata/data_from_spin/J_regressor_extra.npy"
-JOINT_REGRESSOR_H36M = "manifold://xr_body/tree/personal/andreydavydov/eft/extradata/data_from_spin/J_regressor_h36m.npy"
+# pathmgr = PathManager()
+# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+# SMPL_MODEL_PATH = "manifold://xr_body/tree/personal/andreydavydov/eft/extradata/smpl/basicModel_neutral_lbs_10_207_0_v1.0.0.pkl"
+# JOINT_REGRESSOR_EXTRA = "manifold://xr_body/tree/personal/andreydavydov/eft/extradata/data_from_spin/J_regressor_extra.npy"
+# JOINT_REGRESSOR_H36M = "manifold://xr_body/tree/personal/andreydavydov/eft/extradata/data_from_spin/J_regressor_h36m.npy"
+SMPL_MODEL_PATH = "/cvlabdata2/home/davydov/videoHMR_SSL/smpl_data/body_models/smpl_neutral_lbs_10_207_0_v1.0.0.pkl"
+JOINT_REGRESSOR_EXTRA = "/cvlabdata2/home/davydov/videoHMR_SSL/smpl_data/J_regressor_extra.npy"
+JOINT_REGRESSOR_H36M = "/cvlabdata2/home/davydov/videoHMR_SSL/smpl_data/J_regressor_h36m.npy"
 
 
 ModelOutput = namedtuple(
@@ -46,7 +51,8 @@ def get_smpl_model(
     """
     smpl_model = SMPL(
         j_regressor_type,
-        pathmgr.get_local_path(smpl_model_path),
+        # pathmgr.get_local_path(smpl_model_path),
+        smpl_model_path,
         batch_size=batch_size,
         create_transl=False,
     ).to(device)
@@ -64,7 +70,8 @@ class SMPL(_SMPL):
         if self.j_regressor_type == "extra":
             # from spin/eft training - J49
             joints = [JOINT_MAP[i] for i in JOINT_NAMES]
-            J_regressor_extra = np.load(pathmgr.get_local_path(JOINT_REGRESSOR_EXTRA))
+            # J_regressor_extra = np.load(pathmgr.get_local_path(JOINT_REGRESSOR_EXTRA))
+            J_regressor_extra = np.load(JOINT_REGRESSOR_EXTRA)
             self.register_buffer(
                 "J_regressor_extra",
                 torch.tensor(J_regressor_extra, dtype=torch.float32),
@@ -72,7 +79,8 @@ class SMPL(_SMPL):
             self.joint_map = torch.tensor(joints, dtype=torch.long)
 
         elif self.j_regressor_type == "h36m":  # J14 - e.g., for 3DPW evaluation
-            J_regressor_h36m = np.load(pathmgr.get_local_path(JOINT_REGRESSOR_H36M))
+            # J_regressor_h36m = np.load(pathmgr.get_local_path(JOINT_REGRESSOR_H36M))
+            J_regressor_h36m = np.load(JOINT_REGRESSOR_H36M)
             self.register_buffer(
                 "J_regressor_h36m", torch.tensor(J_regressor_h36m, dtype=torch.float32)
             )

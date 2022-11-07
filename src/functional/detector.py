@@ -1,12 +1,12 @@
 import numpy as np
 import torch
 
-from iopath.common.file_io import PathManager
-from iopath.fb.manifold import ManifoldPathHandler
+# from iopath.common.file_io import PathManager
+# from iopath.fb.manifold import ManifoldPathHandler
 from PIL import Image
 
-pathmgr = PathManager()
-pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+# pathmgr = PathManager()
+# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
 DETECTOR_PATH = "/data/sandcastle/boxes/fbsource/xplat/arfx/tracking/body/models/158/body_tracking_model_init.pb"
 
@@ -46,7 +46,8 @@ def dataloader_preprocess(rgb):
 
 
 def init_detector():
-    with pathmgr.open(DETECTOR_PATH, "rb") as f:
+    # with pathmgr.open(DETECTOR_PATH, "rb") as f:
+    with open(DETECTOR_PATH, "rb") as f:
         bbox_model = torch.jit.load(f)
     return bbox_model
 

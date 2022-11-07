@@ -2,11 +2,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 
-from iopath.common.file_io import PathManager
-from iopath.fb.manifold import ManifoldPathHandler
+# from iopath.common.file_io import PathManager
+# from iopath.fb.manifold import ManifoldPathHandler
 
-pathmgr = PathManager()
-pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+# pathmgr = PathManager()
+# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
 
 def plot_mpjpes(ckpt_names):
@@ -16,15 +16,17 @@ def plot_mpjpes(ckpt_names):
         ckpt_dir = f"manifold://xr_body/tree/personal/andreydavydov/my_exps/{full_name}"
 
         pa_mpjpe_vs_gt_valid = torch.load(
-            pathmgr.get_local_path(
-                f"{ckpt_dir}/metrics/pa_mpjpe_vs_gt_valid.pth", force=True
-            )
+            # pathmgr.get_local_path(
+            #     f"{ckpt_dir}/metrics/pa_mpjpe_vs_gt_valid.pth", force=True
+            # )
+                f"{ckpt_dir}/metrics/pa_mpjpe_vs_gt_valid.pth"
         )["prev_vals"]
         ax[0].plot(pa_mpjpe_vs_gt_valid, label=name)
         pa_mpjpe_vs_0_valid = torch.load(
-            pathmgr.get_local_path(
-                f"{ckpt_dir}/metrics/pa_mpjpe_vs_0_valid.pth", force=True
-            )
+            # pathmgr.get_local_path(
+            #     f"{ckpt_dir}/metrics/pa_mpjpe_vs_0_valid.pth", force=True
+            # )
+            f"{ckpt_dir}/metrics/pa_mpjpe_vs_0_valid.pth"
         )["prev_vals"]
         ax[1].plot(pa_mpjpe_vs_0_valid, label=name)
         for axis in ax:
@@ -43,9 +45,10 @@ def plot_accel(ckpt_names, force=True):
     for name, full_name in ckpt_names.items():
         ckpt_dir = f"manifold://xr_body/tree/personal/andreydavydov/my_exps/{full_name}"
         accel_err_vs_gt_valid = torch.load(
-            pathmgr.get_local_path(
-                f"{ckpt_dir}/metrics/accel_err_vs_gt_valid.pth", force=force
-            )
+            # pathmgr.get_local_path(
+            #     f"{ckpt_dir}/metrics/accel_err_vs_gt_valid.pth", force=force
+            # )
+            f"{ckpt_dir}/metrics/accel_err_vs_gt_valid.pth"
         )["prev_vals"]
         ax.plot(accel_err_vs_gt_valid, label=f"vs GT {name}")
 
@@ -61,17 +64,19 @@ def plot_mpjpes_and_accel(ckpt_names, force=True):
         ckpt_dir = f"manifold://xr_body/tree/personal/andreydavydov/my_exps/{full_name}"
 
         pa_mpjpe_vs_gt_valid = torch.load(
-            pathmgr.get_local_path(
-                f"{ckpt_dir}/metrics/pa_mpjpe_vs_gt_valid.pth", force=force
-            )
+            # pathmgr.get_local_path(
+            #     f"{ckpt_dir}/metrics/pa_mpjpe_vs_gt_valid.pth", force=force
+            # )
+            f"{ckpt_dir}/metrics/pa_mpjpe_vs_gt_valid.pth"
         )["prev_vals"]
         ax[0].plot(pa_mpjpe_vs_gt_valid, label=name)
         ax[0].set_ylabel("pa-mpjpe")
 
         accel_err_vs_gt_valid = torch.load(
-            pathmgr.get_local_path(
-                f"{ckpt_dir}/metrics/accel_err_vs_gt_valid.pth", force=force
-            )
+            # pathmgr.get_local_path(
+            #     f"{ckpt_dir}/metrics/accel_err_vs_gt_valid.pth", force=force
+            # )
+            f"{ckpt_dir}/metrics/accel_err_vs_gt_valid.pth"
         )["prev_vals"]
         ax[1].plot(accel_err_vs_gt_valid, label=f"vs GT {name}")
         ax[1].set_ylabel("acceleration")
@@ -95,7 +100,8 @@ def plot_shape_pose_norm(ckpt_names):
     for name, full_name in ckpt_names.items():
         ckpt_dir = f"manifold://xr_body/tree/personal/andreydavydov/my_exps/{full_name}"
         ckpt = torch.load(
-            pathmgr.get_local_path(f"{ckpt_dir}/ckpt.pth", force=True),
+            # pathmgr.get_local_path(f"{ckpt_dir}/ckpt.pth", force=True),
+            f"{ckpt_dir}/ckpt.pth",
             map_location="cpu",
         )
 

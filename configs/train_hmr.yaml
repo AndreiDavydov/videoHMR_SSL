@@ -3,7 +3,7 @@ PRINT_FREQ : 500
 SAVE_EVERY_EPOCH : 100
 ADD_TIMESTAMP : False
 
-OUTPUT_DIR : '/tmp/train_hmr'
+OUTPUT_DIR : '/cvlabdata2/home/davydov/videoHMR_SSL/output/train_hmr'
 
 MODELS :
   hmrnet :

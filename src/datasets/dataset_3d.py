@@ -22,8 +22,8 @@ import joblib
 import numpy as np
 import torch
 
-from iopath.common.file_io import PathManager
-from iopath.fb.manifold import ManifoldPathHandler
+# from iopath.common.file_io import PathManager
+# from iopath.fb.manifold import ManifoldPathHandler
 
 from torch.utils.data import Dataset
 
@@ -33,8 +33,8 @@ from skimage.util.shape import view_as_windows
 
 logger = logging.getLogger(__name__)
 
-pathmgr = PathManager()
-pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+# pathmgr = PathManager()
+# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
 
 def split_into_chunks(vid_names, seqlen, stride):
@@ -101,7 +101,7 @@ class Dataset3D(Dataset):
     def load_db(self):
         db_file = osp.join(DB_DIR, f"{self.set}/{self.dataset_name}_{self.set}_db.pt")
 
-        db_file = pathmgr.get_local_path(db_file)
+        # db_file = pathmgr.get_local_path(db_file)
         if osp.isfile(db_file):
             db = joblib.load(db_file)
         else:
@@ -205,7 +205,7 @@ class Dataset3D(Dataset):
                 # print(f, frame_idxs)
                 video = [video_file_list[i] for i in frame_idxs]
 
-            video = [pathmgr.get_local_path(frame) for frame in video]
+            # video = [pathmgr.get_local_path(frame) for frame in video]
             video = torch.cat(
                 [
                     utils.get_single_image_crop(image, bbox).unsqueeze(0)

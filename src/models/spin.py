@@ -8,8 +8,8 @@ import torch
 import torch.nn as nn
 import torchvision.models.resnet as resnet
 
-from iopath.common.file_io import PathManager
-from iopath.fb.manifold import ManifoldPathHandler
+# from iopath.common.file_io import PathManager
+# from iopath.fb.manifold import ManifoldPathHandler
 
 from kornia.geometry import rotation_matrix_to_angle_axis
 
@@ -17,8 +17,8 @@ from src.functional.geometry import rot6d_to_rotmat
 from src.functional.smpl import get_smpl_model, H36M_TO_J14
 from src.models.hmr import Bottleneck, SMPL_MEAN_PARAMS
 
-pathmgr = PathManager()
-pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+# pathmgr = PathManager()
+# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
 
 class HMR(nn.Module):
@@ -210,7 +210,7 @@ class Regressor(nn.Module):
             batch_size=64,
             device="cpu",
         )
-        smpl_mean_params = pathmgr.get_local_path(smpl_mean_params)
+        # smpl_mean_params = pathmgr.get_local_path(smpl_mean_params)
         mean_params = np.load(smpl_mean_params)
         init_pose = torch.from_numpy(mean_params["pose"][:]).unsqueeze(0)
         init_shape = torch.from_numpy(
@@ -297,7 +297,7 @@ def hmr(smpl_mean_params=SMPL_MEAN_PARAMS, pretrained=True, **kwargs):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    smpl_mean_params = pathmgr.get_local_path(smpl_mean_params)
+    # smpl_mean_params = pathmgr.get_local_path(smpl_mean_params)
     model = HMR(Bottleneck, [3, 4, 6, 3], smpl_mean_params, **kwargs)
     if pretrained:
         resnet_imagenet = resnet.resnet50(pretrained=True)

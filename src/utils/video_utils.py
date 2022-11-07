@@ -4,11 +4,11 @@ import cv2
 import imageio
 
 import numpy as np
-from iopath.common.file_io import PathManager
-from iopath.fb.manifold import ManifoldPathHandler
+# from iopath.common.file_io import PathManager
+# from iopath.fb.manifold import ManifoldPathHandler
 
-pathmgr = PathManager()
-pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+# pathmgr = PathManager()
+# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
 
 def get_frames(vid_file, scale=1):
@@ -53,8 +53,10 @@ def write_video(res_frames, out_path, fps=30):
         out.write(frame[:, :, ::-1])
     out.release()
 
-    pathmgr.copy_from_local(tmp_file, out_path, overwrite=True)
-    print(f"Video is saved to '{out_path}'")
+    # pathmgr.copy_from_local(tmp_file, out_path, overwrite=True)
+    # print(f"Video is saved to '{out_path}'")
+    print(f"Video is saved to '{tmp_file}'")
+    
 
 
 def concat_videos(video_paths, out_path="/tmp/concat_vid.mp4", fps=20, scale=1):
@@ -65,7 +67,8 @@ def concat_videos(video_paths, out_path="/tmp/concat_vid.mp4", fps=20, scale=1):
 
     vid_frames = []
     for vid_path in video_paths:
-        frame_list, _ = get_frames(pathmgr.get_local_path(vid_path), scale=scale)
+        # frame_list, _ = get_frames(pathmgr.get_local_path(vid_path), scale=scale)
+        frame_list, _ = get_frames(vid_path, scale=scale)
         vid_frames.append(frame_list)
 
     num_frames = len(frame_list)
@@ -87,15 +90,17 @@ def write_video_gif(res_frames, out_path, fps=30):
     tmp_file = tempfile.mkdtemp() + ".gif"
     imageio.mimsave(tmp_file, res_frames, format="GIF", fps=fps)
 
-    pathmgr.copy_from_local(tmp_file, out_path, overwrite=True)
-    print(f"Video is saved to '{out_path}'")
+    # pathmgr.copy_from_local(tmp_file, out_path, overwrite=True)
+    # print(f"Video is saved to '{out_path}'")
+    print(f"Video is saved to '{tmp_file}'")
 
 
 def test_write_video_gif():
     vid_path = (
         "manifold://xr_body/tree/personal/andreydavydov/eft/sampledata/han_short.mp4"
     )
-    frame_list, _ = get_frames(pathmgr.get_local_path(vid_path))
+    # frame_list, _ = get_frames(pathmgr.get_local_path(vid_path))
+    frame_list, _ = get_frames(vid_path)
     frame_list = frame_list[::10]  # gif is quite heavy
 
     vid_path_new = "/tmp/test_gif.gif"

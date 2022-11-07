@@ -3,8 +3,8 @@ import os
 import pprint
 import sys
 
-from iopath.common.file_io import PathManager
-from iopath.fb.manifold import ManifoldPathHandler
+# from iopath.common.file_io import PathManager
+# from iopath.fb.manifold import ManifoldPathHandler
 
 _root_path = os.path.join(os.path.dirname(__file__), "..")
 sys.path.insert(0, _root_path)
@@ -14,9 +14,9 @@ import src
 
 def run_proc(cfg):
     # cache the cfg to local
-    pathmgr = PathManager()
-    pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
-    local_cfg = pathmgr.get_local_path(cfg)
+    # pathmgr = PathManager()
+    # pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+    local_cfg = cfg # pathmgr.get_local_path(cfg)
 
     ### initialize Trainer
     trainer = src.core.trainer.Trainer(local_cfg)

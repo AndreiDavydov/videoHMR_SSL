@@ -355,18 +355,19 @@ def get_vertex_visibility_mask(meshes, cameras, img_size):
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    from iopath.common.file_io import PathManager
-    from iopath.fb.manifold import ManifoldPathHandler
+    # from iopath.common.file_io import PathManager
+    # from iopath.fb.manifold import ManifoldPathHandler
 
-    pathmgr = PathManager()
-    pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+    # pathmgr = PathManager()
+    # pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
     ### test renderers
     test_renderers = True
     if test_renderers:
 
         sample_path = "manifold://xr_body/tree/personal/andreydavydov/renderer/sample_for_tests.pth"
-        d = torch.load(pathmgr.get_local_path(sample_path))
+        # d = torch.load(pathmgr.get_local_path(sample_path))
+        d = torch.load(sample_path)
 
         device = "cuda:0"
         img = d["img"].clone().to(device)  # B x 3 x H x W
@@ -451,7 +452,8 @@ if __name__ == "__main__":
         import math
 
         sample_path = "manifold://xr_body/tree/personal/andreydavydov/renderer/sample_for_tests.pth"
-        d = torch.load(pathmgr.get_local_path(sample_path))
+        # d = torch.load(pathmgr.get_local_path(sample_path))
+        d = torch.load(sample_path)
 
         device = "cuda:0"
         img = d["img"].clone().to(device)[:1]  # B x 3 x H x W

@@ -8,13 +8,13 @@ import numpy as np
 import src.utils.augment as augment
 import torch
 
-from iopath.common.file_io import PathManager
-from iopath.fb.manifold import ManifoldPathHandler
+# from iopath.common.file_io import PathManager
+# from iopath.fb.manifold import ManifoldPathHandler
 from src.datasets.datasets_common import NORMALIZE
 
 
-pathmgr = PathManager()
-pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+# pathmgr = PathManager()
+# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
 COCO_EFT_IMG_FOLDER = "manifold://fair_vision_data/tree/coco_train2014_oct_15_2018/"
 COCO_EFT_IMG_ZIP = (
@@ -25,8 +25,8 @@ COCO_EFT_JSON_FILE = "manifold://xr_body/tree/personal/andreydavydov/eft/eft_fit
 
 
 def _load_kpts(kpts_path):
-    if kpts_path.startswith("manifold://"):
-        kpts_path = pathmgr.get_local_path(kpts_path)
+    # if kpts_path.startswith("manifold://"):
+    #     kpts_path = pathmgr.get_local_path(kpts_path)
 
     with open(kpts_path, "r") as f:
         kpts = json.load(f)
@@ -60,18 +60,20 @@ class COCO_EFT(torch.utils.data.Dataset):
         copy_to_local=True,
     ):
 
-        if copy_to_local:
-            ### copy zip to local
-            images_zip = pathmgr.get_local_path(COCO_EFT_IMG_ZIP)
-            ### unarchive
-            image_files_dir = os.path.join(
-                COCO_EFT_IMG_FOLDER_LOCAL, "coco_train2014_oct_15_2018"
-            )
-            if not os.path.exists(image_files_dir):
-                os.makedirs(COCO_EFT_IMG_FOLDER_LOCAL)
-                shutil.unpack_archive(images_zip, COCO_EFT_IMG_FOLDER_LOCAL)
-        else:
-            image_files_dir = COCO_EFT_IMG_FOLDER
+        # if copy_to_local:
+        #     ### copy zip to local
+        #     images_zip = pathmgr.get_local_path(COCO_EFT_IMG_ZIP)
+        #     ### unarchive
+        #     image_files_dir = os.path.join(
+        #         COCO_EFT_IMG_FOLDER_LOCAL, "coco_train2014_oct_15_2018"
+        #     )
+        #     if not os.path.exists(image_files_dir):
+        #         os.makedirs(COCO_EFT_IMG_FOLDER_LOCAL)
+        #         shutil.unpack_archive(images_zip, COCO_EFT_IMG_FOLDER_LOCAL)
+        # else:
+        #     image_files_dir = COCO_EFT_IMG_FOLDER
+
+        image_files_dir = COCO_EFT_IMG_FOLDER
 
         self.kpts = _load_kpts(COCO_EFT_JSON_FILE)["data"]
         self.img_folder = image_files_dir
@@ -89,7 +91,8 @@ class COCO_EFT(torch.utils.data.Dataset):
         return len(self.kpts)
 
     def get_img(self, imageName):
-        img_path = pathmgr.get_local_path(os.path.join(self.img_folder, imageName))
+        # img_path = pathmgr.get_local_path(os.path.join(self.img_folder, imageName))
+        img_path = os.path.join(self.img_folder, imageName)
         img = cv2.imread(img_path)[:, :, ::-1]
         return img
 

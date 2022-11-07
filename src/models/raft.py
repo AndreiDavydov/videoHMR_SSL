@@ -165,9 +165,10 @@ class RAFT(nn.Module):
 def raft_pretrained():
     model = torch.nn.DataParallel(RAFT())
 
-    pathmgr = PathManager()
-    pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
-    model.load_state_dict(torch.load(pathmgr.get_local_path(RAFT_PRETRAINED)))
+    # pathmgr = PathManager()
+    # pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+    # model.load_state_dict(torch.load(pathmgr.get_local_path(RAFT_PRETRAINED)))
+    model.load_state_dict(torch.load(RAFT_PRETRAINED))
     model = model.module
     model.eval()
     return model

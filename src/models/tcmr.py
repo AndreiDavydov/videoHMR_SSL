@@ -3,14 +3,14 @@ import os
 import torch
 import torch.nn as nn
 
-from iopath.common.file_io import PathManager
-from iopath.fb.manifold import ManifoldPathHandler
+# from iopath.common.file_io import PathManager
+# from iopath.fb.manifold import ManifoldPathHandler
 from src.functional.tcmr import TemporalEncoder
 
 from src.models.spin import Regressor
 
-pathmgr = PathManager()
-pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+# pathmgr = PathManager()
+# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
 BASE_DIR = "manifold://xr_body/tree/personal/andreydavydov/tcmr"
 SPIN_FILE = "spin_model_checkpoint.pth.tar"
@@ -38,7 +38,8 @@ class TCMR(nn.Module):
         # regressor can predict cam, pose and shape params in an iterative way
         self.regressor = Regressor()
 
-        pretrained = pathmgr.get_local_path(os.path.join(BASE_DIR, SPIN_FILE))
+        # pretrained = pathmgr.get_local_path(os.path.join(BASE_DIR, SPIN_FILE))
+        pretrained = os.path.join(BASE_DIR, SPIN_FILE)
         pretrained_dict = torch.load(pretrained)["model"]
 
         self.regressor.load_state_dict(pretrained_dict, strict=False)
@@ -88,7 +89,8 @@ def get_tcmr():
         hidden_size=1024,
     )
     ckpt_path = os.path.join(BASE_DIR, TCMR_TABLE4_FILE)
-    checkpoint = torch.load(pathmgr.get_local_path(ckpt_path))
+    # checkpoint = torch.load(pathmgr.get_local_path(ckpt_path))
+    checkpoint = torch.load(ckpt_path)
     model.load_state_dict(checkpoint["gen_state_dict"])
     print(f"==> Loaded pretrained model from {ckpt_path}...")
 
@@ -106,7 +108,8 @@ if __name__ == "__main__":
 
     ### init feature extractor
     hmr = hmr().to(device)
-    pretrained = pathmgr.get_local_path(os.path.join(BASE_DIR, SPIN_FILE))
+    # pretrained = pathmgr.get_local_path(os.path.join(BASE_DIR, SPIN_FILE))
+    pretrained = os.path.join(BASE_DIR, SPIN_FILE)
     pretrained_dict = torch.load(pretrained)["model"]
     hmr.load_state_dict(pretrained_dict, strict=False)
     hmr.eval()
@@ -114,14 +117,16 @@ if __name__ == "__main__":
     ### init TCMR with smpl regressor
     seqlen = 16
     tcmr_model = TCMR(seqlen=seqlen, n_layers=2, hidden_size=1024).to(device)
-    pretrained = pathmgr.get_local_path(os.path.join(BASE_DIR, TCMR_DEMO_FILE))
+    # pretrained = pathmgr.get_local_path(os.path.join(BASE_DIR, TCMR_DEMO_FILE))
+    pretrained = os.path.join(BASE_DIR, TCMR_DEMO_FILE)
     pretrained_dict = torch.load(pretrained)["gen_state_dict"]
     tcmr_model.load_state_dict(pretrained_dict, strict=False)
     tcmr_model.eval()
 
-    j_regr = pathmgr.get_local_path(
-        "manifold://xr_body/tree/personal/andreydavydov/eft/extradata/data_from_spin/J_regressor_h36m.npy"
-    )
+    # j_regr = pathmgr.get_local_path(
+    #     "manifold://xr_body/tree/personal/andreydavydov/eft/extradata/data_from_spin/J_regressor_h36m.npy"
+    # )
+    j_regr = "manifold://xr_body/tree/personal/andreydavydov/eft/extradata/data_from_spin/J_regressor_h36m.npy"
     J_regressor = torch.from_numpy(np.load(j_regr)).float()
 
     ### random inference image-features

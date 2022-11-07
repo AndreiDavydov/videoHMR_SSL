@@ -8,15 +8,15 @@ import torch
 import torch.nn as nn
 import torchvision.models.resnet as resnet
 
-from iopath.common.file_io import PathManager
-from iopath.fb.manifold import ManifoldPathHandler
+# from iopath.common.file_io import PathManager
+# from iopath.fb.manifold import ManifoldPathHandler
 
 from src.functional.geometry import rot6d_to_rotmat
 
-pathmgr = PathManager()
-pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
+# pathmgr = PathManager()
+# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
-SMPL_MEAN_PARAMS = "manifold://xr_body/tree/personal/andreydavydov/eft/extradata/data_from_spin/smpl_mean_params.npz"
+SMPL_MEAN_PARAMS = "/cvlabdata2/home/davydov/videoHMR_SSL/smpl_data/smpl_mean_params.npz"
 
 
 class Bottleneck(nn.Module):
@@ -188,7 +188,7 @@ def hmr(smpl_mean_params=SMPL_MEAN_PARAMS, pretrained=True, **kwargs):
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
     """
-    smpl_mean_params = pathmgr.get_local_path(smpl_mean_params)
+    # smpl_mean_params = pathmgr.get_local_path(smpl_mean_params)
     model = HMR(Bottleneck, [3, 4, 6, 3], smpl_mean_params, **kwargs)
     if pretrained:
         resnet_imagenet = resnet.resnet50(pretrained=True)
