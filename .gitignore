@@ -1,6 +1,6 @@
 *._*
 *__pycache__*
 *.ipynb_checkpoints*
-*smpl_data/*
-*output/*
+data/*
+output/*
 .vscode/*
