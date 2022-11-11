@@ -1,7 +1,8 @@
+# pylint: disable=too-many-arguments
 # taken from https://github.com/hongsukchoi/TCMR_RELEASE/blob/master/lib/dataset/threedpw.py
 
-import os
-import shutil
+# import os
+# import shutil
 
 # from iopath.common.file_io import PathManager
 # from iopath.fb.manifold import ManifoldPathHandler
@@ -10,12 +11,13 @@ from src.datasets.dataset_3d import Dataset3D
 # pathmgr = PathManager()
 # pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
-THREEDPW_DIR = "manifold://xr_body/tree/personal/andreydavydov/3dpw/"
-THREEDPW_DIR_LOCAL = "/tmp/3dpw/"
+# THREEDPW_DIR = "manifold://xr_body/tree/personal/andreydavydov/3dpw/"
+# THREEDPW_DIR_LOCAL = "/tmp/3dpw/"
+THREEDPW_DIR = "/cvlabdata2/home/davydov/videoHMR_SSL/data/3dpw/3dpw_original"
 
 
 class ThreeDPW(Dataset3D):
-    def __init__(self, set, seqlen, overlap=0.75, debug=False, copy_to_local=True):
+    def __init__(self, set, seqlen, overlap=0.75, debug=False):#, copy_to_local=True):
         # if copy_to_local:
         #     ### copy zip to local
         #     images_zip = pathmgr.get_local_path(

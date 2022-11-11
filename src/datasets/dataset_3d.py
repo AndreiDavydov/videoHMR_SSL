@@ -21,16 +21,17 @@ import os.path as osp
 import joblib
 import numpy as np
 import torch
+from torch.utils.data import Dataset
 
 # from iopath.common.file_io import PathManager
 # from iopath.fb.manifold import ManifoldPathHandler
 
-from torch.utils.data import Dataset
 
 # DB_DIR = "manifold://xr_body/tree/personal/andreydavydov/datasets_3d_processed/"
-DB_DIR = "/cvlabdata2/home/davydov/videoHMR_SSL/datasets_3d_processed/"
-import src.utils.img_utils_datasets_3d as utils
+DB_DIR = "/cvlabdata2/home/davydov/videoHMR_SSL/data/3dpw/3dpw_processed/"
 from skimage.util.shape import view_as_windows
+
+import src.utils.img_utils_datasets_3d as utils
 
 logger = logging.getLogger(__name__)
 

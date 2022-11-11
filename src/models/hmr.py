@@ -16,7 +16,7 @@ from src.functional.geometry import rot6d_to_rotmat
 # pathmgr = PathManager()
 # pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
-SMPL_MEAN_PARAMS = "/cvlabdata2/home/davydov/videoHMR_SSL/smpl_data/smpl_mean_params.npz"
+SMPL_MEAN_PARAMS = "/cvlabdata2/home/davydov/videoHMR_SSL/data/smpl_data/smpl_mean_params.npz"
 
 
 class Bottleneck(nn.Module):

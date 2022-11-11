@@ -15,9 +15,9 @@ from smplx.lbs import vertices2joints
 # SMPL_MODEL_PATH = "manifold://xr_body/tree/personal/andreydavydov/eft/extradata/smpl/basicModel_neutral_lbs_10_207_0_v1.0.0.pkl"
 # JOINT_REGRESSOR_EXTRA = "manifold://xr_body/tree/personal/andreydavydov/eft/extradata/data_from_spin/J_regressor_extra.npy"
 # JOINT_REGRESSOR_H36M = "manifold://xr_body/tree/personal/andreydavydov/eft/extradata/data_from_spin/J_regressor_h36m.npy"
-SMPL_MODEL_PATH = "/cvlabdata2/home/davydov/videoHMR_SSL/smpl_data/body_models/smpl_neutral_lbs_10_207_0_v1.0.0.pkl"
-JOINT_REGRESSOR_EXTRA = "/cvlabdata2/home/davydov/videoHMR_SSL/smpl_data/J_regressor_extra.npy"
-JOINT_REGRESSOR_H36M = "/cvlabdata2/home/davydov/videoHMR_SSL/smpl_data/J_regressor_h36m.npy"
+SMPL_MODEL_PATH = "/cvlabdata2/home/davydov/videoHMR_SSL/data/smpl_data/body_models/smpl_neutral_lbs_10_207_0_v1.0.0.pkl"
+JOINT_REGRESSOR_EXTRA = "/cvlabdata2/home/davydov/videoHMR_SSL/data/smpl_data/J_regressor_extra.npy"
+JOINT_REGRESSOR_H36M = "/cvlabdata2/home/davydov/videoHMR_SSL/data/smpl_data/J_regressor_h36m.npy"
 
 
 ModelOutput = namedtuple(
