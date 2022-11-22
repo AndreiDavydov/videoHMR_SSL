@@ -74,8 +74,6 @@ def render_mesh_onto_image(
     vertices /= min_size / 2
     vertices[:, 2] += 10
 
-    pytorch_mesh = convert_to_pytorch_mesh(vertices, faces)
-
     if rasterizer is None or shader is None:
 
         img_shape = img.shape[:2]
@@ -102,7 +100,7 @@ def render_mesh_onto_image(
             blend_params=blend_params,
         )
 
-    pytorch_mesh = convert_to_pytorch_mesh(vertices, faces)
+    pytorch_mesh = convert_to_pytorch_mesh(vertices, faces, device=device)
 
     fragments = rasterizer(pytorch_mesh)
     images = shader(fragments, pytorch_mesh)
