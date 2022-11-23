@@ -1,6 +1,6 @@
-GPUS : '0'
+GPUS : '1'
 
-OUTPUT_DIR : '/tmp/eval_hmr'
+OUTPUT_DIR : '/cvlabdata2/home/davydov/videoHMR_SSL/output/eval_hmr'
 
 MODELS :
   hmrnet :
@@ -48,7 +48,7 @@ LOSSES :
 TRAINING :
   END_EPOCH : 1 # evaluation
   RESUME :
-    CKPT : "manifold://xr_body/tree/personal/andreydavydov/eft_model_zoo/coco-all.pt"
+    CKPT : "/cvlabdata2/home/davydov/videoHMR_SSL/eft_model_zoo/coco-all.pt"
     LOAD_MODELS_ONLY : True
 
 
