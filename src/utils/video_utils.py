@@ -45,7 +45,8 @@ def write_video(res_frames, out_path, fps=30):
     width = res_frames[0].shape[1]
     height = res_frames[0].shape[0]
 
-    tmp_file = tempfile.mkdtemp() + ".mp4"
+    tmp_file = out_path
+    # tmp_file = tempfile.mkdtemp() + ".mp4"
     # out = cv2.VideoWriter(tmp_file, 0x00000021, fps, (width, height))
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
     out = cv2.VideoWriter(tmp_file, fourcc, fps, (width, height))

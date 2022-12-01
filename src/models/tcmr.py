@@ -12,7 +12,7 @@ from src.models.spin import Regressor
 # pathmgr = PathManager()
 # pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
-BASE_DIR = "manifold://xr_body/tree/personal/andreydavydov/tcmr"
+BASE_DIR = "/cvlabdata2/home/davydov/videoHMR_SSL/dump_from_tcmr"
 SPIN_FILE = "spin_model_checkpoint.pth.tar"
 TCMR_DEMO_FILE = "tcmr_demo_model.pth.tar"
 TCMR_TABLE4_FILE = "tcmr_table4_3dpw_test.pth.tar"
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     # j_regr = pathmgr.get_local_path(
     #     "manifold://xr_body/tree/personal/andreydavydov/eft/extradata/data_from_spin/J_regressor_h36m.npy"
     # )
-    j_regr = "manifold://xr_body/tree/personal/andreydavydov/eft/extradata/data_from_spin/J_regressor_h36m.npy"
+    j_regr = "/cvlabdata2/home/davydov/videoHMR_SSL/data/smpl_data/J_regressor_h36m.npy"
     J_regressor = torch.from_numpy(np.load(j_regr)).float()
 
     ### random inference image-features
