@@ -2,9 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from iopath.common.file_io import PathManager
-from iopath.fb.manifold import ManifoldPathHandler
-
 from src.functional.raft import (
     autocast,
     BasicEncoder,
@@ -17,7 +14,7 @@ from src.functional.raft import (
 )
 
 RAFT_PRETRAINED = (
-    "manifold://xr_body/tree/personal/andreydavydov/raft/models/raft-things.pth"
+    "/cvlabdata2/home/davydov/videoHMR_SSL/dump_from_raft/models/raft-things.pth"
 )
 
 
