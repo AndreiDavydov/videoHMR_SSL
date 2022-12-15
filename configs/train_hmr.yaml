@@ -1,4 +1,4 @@
-GPUS : '0'
+GPUS : '0, 1'
 PRINT_FREQ : 500
 SAVE_EVERY_EPOCH : 100
 ADD_TIMESTAMP : False
@@ -87,8 +87,8 @@ DATALOAD :
     NUM_ITERATIONS_PER_EPOCH : 2_000
     PARAMS :
       shuffle : True
-      batch_size : 32
-      num_workers : 8
+      batch_size : 16 # per GPU, 16 * 2 for DataLoader per one batch loading
+      num_workers : 16
   valid :
     PARAMS :
       shuffle : False
@@ -97,8 +97,8 @@ DATALOAD :
   eval :
     PARAMS :
       shuffle : False
-      batch_size : 16
-      num_workers : 8
+      batch_size : 1
+      num_workers : 16
 
 TRAINING :
   END_EPOCH : 1_000
@@ -106,6 +106,6 @@ TRAINING :
 
 PROCEDURE : 'train_hmr'
 
-EXP_NAME : 'train_hmr_coco_eft_basic_lr5e-5_no_sched_workers_8'
+EXP_NAME : 'train_hmr_coco_eft_basic_lr5e-5_no_sched_workers_16_2gpu'
 
 VALID_FIRST : True
