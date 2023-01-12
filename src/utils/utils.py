@@ -46,7 +46,7 @@ def generate_new_name_for_log(log_name):
 
 def create_logger(output_dir, cfg):
     if "FAKERUN" in cfg and cfg.FAKERUN:
-        return FakeLogger(), None
+        return FakeLogger(), None, None
 
     exp_foldername = cfg.EXP_NAME
     assert exp_foldername is not None, "Specify the Experiment Name!"
