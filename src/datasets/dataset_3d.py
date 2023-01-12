@@ -189,6 +189,9 @@ class Dataset3D(Dataset):
         # target['center'] = self.db['bbox'][start_index:end_index+1, :2]
         # target['valid'] = torch.from_numpy(self.db['valid'][start_index:end_index+1])
 
+        ### add attr-s to reconstruct GT smpl bodies aligned with bbox image
+        target["bbox"] = bbox
+
         if self.debug:
 
             if self.dataset_name == "mpii3d":
