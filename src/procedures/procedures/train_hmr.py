@@ -3,6 +3,7 @@ from time import time
 
 # import src.utils.manifold_utils as manifold
 
+import os
 import torch
 
 from src.functional import smpl
@@ -146,8 +147,11 @@ def valid(trainer):
         img.cpu(), pred_vertices_bbox.cpu(), trainer.smpl_model_faces
     )
 
+    os.makedirs(ospjoin(
+        trainer.final_output_dir, "figs_valid"), exist_ok=True)
+
     local_fig = ospjoin(
-        trainer.final_output_dir,
+        trainer.final_output_dir, "figs_valid"
         f"fig_epoch{trainer.cur_epoch:05d}_batch{batch_idx:05d}.png",
     )
     fig.savefig(local_fig)
