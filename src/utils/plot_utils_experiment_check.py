@@ -168,3 +168,19 @@ def plot_heatmap(
     ax.grid(False)
 
     return fig, ax
+
+
+def load_metrics(path, num=1, remove_tail=False):
+    arr = torch.tensor(torch.load(path)["prev_vals"])
+    
+    if remove_tail:
+        # epochends() is called in the end of the training AND after the training,
+        # adding "0" in the end of metrics array. 
+        # Remove it manually:
+        arr = arr.view(-1, num+1)[:,:-1].flatten()
+    
+    if num > 1:
+        arr = arr.view(-1, num)
+        arr = arr.mean(dim=-1)
+        
+    return arr
