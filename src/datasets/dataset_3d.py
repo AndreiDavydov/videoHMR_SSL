@@ -177,7 +177,7 @@ class Dataset3D(Dataset):
             "w_3d": w_3d,
         }
 
-        if self.dataset_name == "3dpw" and not is_train:
+        if self.dataset_name == "3dpw": # and not is_train:
             vn = self.db["vid_name"][start_index : end_index + 1]
             fi = self.db["frame_id"][start_index : end_index + 1]
             target["instance_id"] = [f"{v}/{f}" for v, f in zip(vn, fi)]
