@@ -159,7 +159,7 @@ class RAFT(nn.Module):
         return flow_predictions
 
 
-def raft_pretrained():
+def get_raft_pretrained():
     model = torch.nn.DataParallel(RAFT())
 
     # pathmgr = PathManager()
@@ -175,5 +175,5 @@ if __name__ == "__main__":
     model = RAFT()  #  this is scratch model
     print(model)
 
-    model = raft_pretrained()  #  this is pretrained model ready to run
+    model = get_raft_pretrained()  #  this is pretrained model ready to run
     print(model)
