@@ -170,7 +170,7 @@ def plot_heatmap(
     return fig, ax
 
 
-def load_metrics(path, num=1, remove_tail=False):
+def load_metrics(path, num=1, remove_tail=False, avg=True):
     arr = torch.tensor(torch.load(path)["prev_vals"])
     
     if remove_tail:
@@ -179,7 +179,7 @@ def load_metrics(path, num=1, remove_tail=False):
         # Remove it manually:
         arr = arr.view(-1, num+1)[:,:-1].flatten()
     
-    if num > 1:
+    if num > 1 and avg:
         arr = arr.view(-1, num)
         arr = arr.mean(dim=-1)
         
