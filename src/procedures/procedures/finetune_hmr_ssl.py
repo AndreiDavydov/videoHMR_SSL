@@ -201,7 +201,7 @@ def valid(trainer):
     for seq_idx in seq_ids:
         trainer.logger.info(f"\t=> seq idx {seq_idx:07}...")
         ### load sequence
-        img = trainer.datasets.video_finetune[seq_idx]["video"].to(trainer.device0)
+        img = trainer.datasets.eval[seq_idx]["video"].to(trainer.device0)
         img_size = img.size(-1)
 
         ### inference
