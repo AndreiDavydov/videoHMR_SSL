@@ -183,7 +183,7 @@ class HMR(nn.Module):
             return pred_rotmat, pred_shape, pred_cam, xf
 
 
-def hmr(smpl_mean_params=SMPL_MEAN_PARAMS, pretrained=True, **kwargs):
+def get_hmr(smpl_mean_params=SMPL_MEAN_PARAMS, pretrained=True, **kwargs):
     """Constructs an HMR model with ResNet50 backbone.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
