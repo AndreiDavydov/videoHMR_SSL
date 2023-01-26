@@ -291,7 +291,7 @@ class Trainer:
                         os.path.dirname(ckpt_name), "metrics", f"{loss_type}_{mode}.pth"
                     )
                     self.meters[mode][loss_type].load_state(
-                        metrics_file, self.cur_epoch
+                        metrics_file
                     )
 
         self.logger.info(f"=> checkpoint is loaded. (last epoch {self.cur_epoch})")

@@ -77,7 +77,7 @@ def train(trainer):
     
     dl_len = len(trainer.dataload.video_finetune)   
     for batch_idx, sample in enumerate(trainer.dataload.video_finetune, start=1):
-        # take one video sequence 32 x 3 x 224 x 224
+        # take one video sequence: seqlen x 3 x 224 x 224
         img = sample["video"][0]  # (batch_size is 1)
         batch_size = img.size(0)
         img_size = img.size(-1)
