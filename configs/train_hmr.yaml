@@ -1,4 +1,4 @@
-GPUS : '0, 1'
+GPUS : '0'
 PRINT_FREQ : 500
 SAVE_EVERY_EPOCH : 100
 ADD_TIMESTAMP : False
@@ -8,7 +8,7 @@ OUTPUT_DIR : '/cvlabdata2/home/davydov/videoHMR_SSL/output/train_hmr'
 MODELS :
   hmrnet :
     DIR : 'hmr'
-    ARCH : 'hmr'
+    ARCH : 'get_hmr'
     PARAMS :
       pretrained : True
 
@@ -87,7 +87,7 @@ DATALOAD :
     NUM_ITERATIONS_PER_EPOCH : 2_000
     PARAMS :
       shuffle : True
-      batch_size : 16 # per GPU, 16 * 2 for DataLoader per one batch loading
+      batch_size : 16
       num_workers : 16
   valid :
     PARAMS :
@@ -106,6 +106,6 @@ TRAINING :
 
 PROCEDURE : 'train_hmr'
 
-EXP_NAME : 'train_hmr_coco_eft_basic_lr5e-5_no_sched_workers_16_2gpu'
+EXP_NAME : 'train_hmr_coco_eft_basic_lr5e-5'
 
 VALID_FIRST : True
