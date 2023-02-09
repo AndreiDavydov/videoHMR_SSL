@@ -32,25 +32,32 @@ class AvgMeter(object):
 
     def reset(self):
         """resets the state of current epoch, saving new value as epoch ends"""
-        self.cur_vals = (
-            []
-        )  # values for the current epoch, not necessarily all batches are processed
+        self.cur_vals = []
+        # values for the current epoch, not necessarily all batches are processed
         self.cur_val = 0
         self.cur_avg = 0  # average over the number of inputs
         self.cur_sum = 0
         self.count = 0
 
     def update(self, cur_val, n=1):
+        # add value computed for one batch, 
+        # then all loss values are averaged for an epoch
         self.cur_vals.append(cur_val)
         self.cur_val = cur_val
         self.cur_sum += cur_val * n
         self.count += n
         self.cur_avg = self.cur_sum / self.count if self.count != 0 else 0
 
-    def epochends(
-        self,
-    ):  # will average current_vals and add this new value to the prev_vals
-        self.prev_vals.append(self.cur_avg)
+    def update_raw(self, cur_val):
+        # add value directly into prev_vals
+        self.prev_vals.append(cur_val)
+
+    def epochends(self):  
+        # will average current_vals and add this new value to the prev_vals
+        # should be called after "train"/"valid" epoch
+        if len(self.cur_vals) > 0: 
+            # if there were no cur_vals, nothing to add
+            self.prev_vals.append(self.cur_avg)
         self.reset()
 
     def save_state(self, output_dir):
