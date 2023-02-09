@@ -24,8 +24,8 @@ def run_proc(cfg):
     ### copy yaml description file to the save folder
     src.utils.utils.copy_exp_file(trainer)
 
-    # ### copy proc.py file to the save folder
-    # src.utils.utils.copy_proc_file(trainer)
+    ### copy proc.py file to the save folder
+    src.utils.utils.copy_proc_file(trainer)
 
     trainer.logger.info(pprint.pformat(trainer.cfg))
     trainer.logger.info("#" * 100)
