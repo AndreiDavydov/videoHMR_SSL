@@ -19,7 +19,8 @@ class UnNormalize(object):
         Returns:
             Tensor: Normalized image.
         """
-        tensor = tensor * self.std + self.mean
+        device = tensor.device
+        tensor = tensor * self.std.to(device) + self.mean.to(device)
         tensor = (tensor * 255).type(torch.int16)
         return tensor
 
