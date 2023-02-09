@@ -1,11 +1,11 @@
-GPUS : '1'
+GPUS : '0'
 
 OUTPUT_DIR : '/cvlabdata2/home/davydov/videoHMR_SSL/output/eval_hmr'
 
 MODELS :
   hmrnet :
     DIR : 'hmr'
-    ARCH : 'hmr'
+    ARCH : 'get_hmr'
     PARAMS :
       pretrained : True
 
