@@ -1,0 +1,111 @@
+GPUS : '0'
+PRINT_FREQ : 500
+SAVE_EVERY_EPOCH : 100
+ADD_TIMESTAMP : False
+
+OUTPUT_DIR : './output/train_hmr_fractional'
+
+MODELS :
+  hmrnet :
+    DIR : 'hmr'
+    ARCH : 'get_hmr'
+    PARAMS :
+      pretrained : True
+
+LOSSES : # keep up with EFT weights:
+  smpl_pose_loss :
+    DIR : 'train_hmr'
+    NAME : 'SmplPoseLoss'
+    WEIGHT : 1.
+  smpl_shape_loss :
+    DIR : 'train_hmr'
+    NAME : 'SmplShapeLoss'
+    WEIGHT : 0.001
+  smpl_shape_prior_loss :
+    DIR : 'train_hmr'
+    NAME : 'SmplShapePriorLoss'
+    WEIGHT : 1.
+  kpts2d_loss :
+    DIR : 'train_hmr'
+    NAME : 'Kpts2dLoss'
+    WEIGHT : 5.
+  kpts3d_loss :
+    DIR : 'train_hmr'
+    NAME : 'Kpts3dLoss'
+    WEIGHT : 5.
+  camera_scale_reg_loss :
+    DIR : 'train_hmr'
+    NAME : 'CameraScaleRegLoss'
+    WEIGHT : 1.
+
+  mpjpe :
+    DIR : 'pose_eval'
+    NAME : 'MPJPE'
+  pa_mpjpe :
+    DIR : 'pose_eval'
+    NAME : 'PAMPJPE'
+  mpvpe :
+    DIR : 'pose_eval'
+    NAME : 'MPVPE'
+  accel :
+    DIR : 'pose_eval'
+    NAME : 'Acceleration'
+  accel_err :
+    DIR : 'pose_eval'
+    NAME : 'AccelerationError'
+
+OPTIM :
+  hmrnet :
+    NAME : 'Adam'
+    PARAMS :
+      lr : 0.00005
+      betas : [0.5, 0.999]
+      weight_decay : 0
+
+DATASETS :
+  train :
+    DIR : 'coco_eft_fractional'
+    NAME : 'COCO_EFT_Fractional'
+    PARAMS :
+      fraction : 50
+
+  valid :
+    DIR : 'coco_eft'
+    NAME : 'COCO_EFT'
+    PARAMS :
+        is_train : False
+  eval :
+    DIR : 'threedpw'
+    NAME : 'ThreeDPW'
+    PARAMS :
+      set : "test"
+      seqlen : 16
+      debug : True
+
+DATALOAD :
+  train :
+    NUM_ITERATIONS_PER_EPOCH : 2_000
+    PARAMS :
+      shuffle : True
+      batch_size : 16
+      num_workers : 16
+  valid :
+    PARAMS :
+      shuffle : False
+      batch_size : 32
+      num_workers : 0
+  eval :
+    PARAMS :
+      shuffle : False
+      batch_size : 1
+      num_workers : 16
+
+TRAINING :
+  END_EPOCH : 1_000
+  RESUME : "auto"
+
+PROCEDURE : 'train_hmr'
+
+EXP_NAME : 'train_hmr_frac__50'
+
+VALID_FIRST : True
