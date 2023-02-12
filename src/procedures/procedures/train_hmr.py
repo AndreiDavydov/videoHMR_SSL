@@ -151,7 +151,7 @@ def valid(trainer):
         trainer.final_output_dir, "figs_valid"), exist_ok=True)
 
     local_fig = ospjoin(
-        trainer.final_output_dir, "figs_valid"
+        trainer.final_output_dir, "figs_valid",
         f"fig_epoch{trainer.cur_epoch:05d}_batch{batch_idx:05d}.png",
     )
     fig.savefig(local_fig)
