@@ -141,3 +141,68 @@ def convert_to_pytorch_mesh(mesh, faces, verts_rgb_colors=None, device="cuda"):
     ).to(device)
 
     return pytorch_mesh
+
+
+def render_mesh_onto_image_batch(
+    img, vertices, faces, device="cuda", rasterizer=None, shader=None, verts_rgb_colors=None
+):
+    """
+    img : B x 3 x H x W torch.tensor
+    vertices : B x N x 3 torch.tensor - mesh vertices (aligned with object in the image)
+    faces : B x M x 3 torch.tensor - list of indices of vertex triplets
+    """
+
+    ### map vertices to ndc format
+    H, W = img.shape[-2], img.shape[-1]
+    vertices = vertices.clone()
+    vertices[:, :, 0] -= H / 2
+    vertices[:, :, 1] -= W / 2
+
+    vertices[:, :, 0:2] *= -1
+
+    min_size = min(H, W)
+    vertices /= min_size / 2
+    vertices[:, :, 2] += 10
+
+    if rasterizer is None or shader is None:
+        cameras = FoVOrthographicCameras(device=device, zfar=100)
+        raster_settings = RasterizationSettings(
+            image_size=[H, W],
+            blur_radius=0.0,
+            faces_per_pixel=1,
+        )
+        lights = PointLights(device=device, location=[[0.0, 0.0, 0.0]])
+        blend_params = BlendParams(background_color=(0, 0, 0))
+
+        rasterizer = MeshRasterizer(
+            cameras=cameras,
+            raster_settings=raster_settings,
+        )
+        shader = SoftPhongShader(
+            device=device,
+            cameras=cameras,
+            lights=lights,
+            blend_params=blend_params,
+        )
+
+    if verts_rgb_colors is None:
+        verts_rgb_colors = 0.6 * torch.ones_like(vertices)
+        verts_rgb_colors[..., 0] += 0.4
+    tex = Textures(verts_rgb=verts_rgb_colors)
+
+    pytorch_mesh = Meshes(
+        verts=torch.Tensor(vertices),
+        faces=torch.Tensor(faces),
+        textures=tex,
+    ).to(device)
+
+    fragments = rasterizer(pytorch_mesh)
+    images = shader(fragments, pytorch_mesh)
+
+    render_img = images[..., :3]
+    img = img.permute(0,2,3,1).to(device) / 255
+    # blend with original image
+    alpha_mask = (fragments.pix_to_face != -1).float()
+    blend_img = render_img * alpha_mask + img * (1 - alpha_mask)
+
+    return blend_img.cpu()
