@@ -11,6 +11,11 @@ class Flow2DLoss(torch.nn.Module):
             have size B x N x 2.
         vis_mask : torch.tensor B x N with 0s and 1s.
         """
+        ### it might happen that vis_mask is empty
+        if vis_mask.sum() == 0:
+            print("vis_mask is zero!")
+            return verts2d_flow_pred[0,0,0] * 0.
+
         err = (verts2d_flow_pred - optical_flow_2d_unproj) ** 2
         err = err.sum(dim=-1)  # B x N
         err = err * vis_mask
