@@ -64,6 +64,8 @@ def get_names(data_type):
         return COMMON_JOINT_NAMES
     if data_type == "spin":
         return SPIN_JOINT_NAMES
+    if data_type == "pennaction":
+        return PENNACTION_JOINT_NAMES
 
 
 def convert_kps(joints2d, src, dst):
@@ -81,7 +83,7 @@ def convert_kps(joints2d, src, dst):
 
 class Dataset3D(Dataset):
     def __init__(
-        self, set, seqlen, overlap=0.0, folder=None, dataset_name=None, debug=False
+        self, set, seqlen, overlap=0.0, folder=None, dataset_name=None, debug=False, output_types=None
     ):
         self.folder = folder
         self.set = set
@@ -90,9 +92,9 @@ class Dataset3D(Dataset):
         self.stride = int(seqlen * (1 - overlap))
         self.debug = debug
         self.db = self.load_db()
-        self.vid_indices = split_into_chunks(
-            self.db["vid_name"], self.seqlen, self.stride
-        )
+        self.vid_indices = split_into_chunks(self.db["vid_name"], self.seqlen, self.stride)
+
+        self.output_types = output_types
 
     def __len__(self):
         return len(self.vid_indices)
@@ -221,6 +223,12 @@ class Dataset3D(Dataset):
 
             target["video"] = video
 
+        target_up = {}
+        if self.output_types is not None:
+            for output_type in self.output_types:
+                target_up[output_type] = target[output_type]
+            return target_up
+        
         return target
 
 
@@ -292,3 +300,19 @@ SPIN_JOINT_NAMES = [
     "lear",  # 47 'Left Ear', # 47
     "rear",  # 48 'Right Ear', # 48
 ]
+
+PENNACTION_JOINT_NAMES = [
+    "headtop",   # 0
+    "lshoulder", # 1
+    "rshoulder", # 2
+    "lelbow",    # 3
+    "relbow",    # 4
+    "lwrist",    # 5
+    "rwrist",    # 6
+    "lhip" ,     # 7
+    "rhip" ,     # 8
+    "lknee",     # 9
+    "rknee" ,    # 10
+    "lankle",    # 11
+    "rankle"     # 12
+   ]

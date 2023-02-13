@@ -17,7 +17,8 @@ THREEDPW_DIR = "/cvlabdata2/home/davydov/videoHMR_SSL/data/3dpw/3dpw_original"
 
 
 class ThreeDPW(Dataset3D):
-    def __init__(self, set, seqlen, overlap=0.75, debug=False):#, copy_to_local=True):
+    # def __init__(self, set, seqlen, overlap=0.75, debug=False):#, copy_to_local=True):
+    def __init__(self, set, seqlen, overlap=0.0, debug=True, output_types=None):#, copy_to_local=True):
         # if copy_to_local:
         #     ### copy zip to local
         #     images_zip = pathmgr.get_local_path(
@@ -47,5 +48,6 @@ class ThreeDPW(Dataset3D):
             overlap=overlap,
             dataset_name=db_name,
             debug=debug,
+            output_types=output_types
         )
         print(f"{db_name} - number of dataset objects {self.__len__()}")
