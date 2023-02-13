@@ -14,8 +14,6 @@ from src.functional.optical_flow import unproject_optical_flows_to_vertices
 from src.functional.renderer import get_default_cameras
 from src.models import raft
 
-from src.procedures.procedures.eval_hmr import valid as eval_on_3dpw
-
 from src.procedures.procedures_common import status_msg
 from src.utils.img_utils import convert_norm_points_to_bbox, weakProjection
 from src.utils.plot_utils import plot_batch_with_mesh
@@ -27,53 +25,11 @@ import numpy as np
 
 import os
 
-from src.procedures.procedures.finetune_hmr_ssl import compute_optical_flows, valid as valid_finetune
+from src.procedures.procedures.finetune_hmr_ssl import compute_optical_flows, valid as valid_finetune, setup as setup_finetune
 
 
 def setup(trainer):
-    device = trainer.device0
-
-    ### init smpl
-    trainer.smpl_model_14 = smpl.get_smpl_model("h36m", device=device)
-    trainer.smpl_model_49 = smpl.get_smpl_model("extra", device=device)
-    trainer.smpl_model_faces = trainer.smpl_model_49.faces.astype(int)
-
-    # this renaming allows to run eval on 3dpw without any changes
-    trainer.smpl_model = trainer.smpl_model_14
-
-    ### set faces for renderer
-    smpl_model_faces = trainer.smpl_model_49.faces.astype(int)
-    trainer.smpl_model_faces = torch.tensor(smpl_model_faces.copy()).unsqueeze(0)
-
-    ### init cameras
-    trainer.cameras = get_default_cameras(device, mode="orthographic")
-
-    ### init optical flow model
-    optical_flow_model = raft.get_raft_pretrained().to(device)
-    optical_flow_model.eval()
-    trainer.optical_flow_model = optical_flow_model
-
-    ### init HMR-best model (COCO-All EFT model, pa-mpjpe: 58.2 mm)
-    hmr_best = src.models.hmr.get_hmr(pretrained=True)
-    ckpt = "/cvlabdata2/home/davydov/videoHMR_SSL/eft_model_zoo/coco-all.pt"
-    ckpt = torch.load(ckpt, map_location="cpu")["hmrnet_state_dict"]
-    hmr_best.load_state_dict(ckpt)
-    hmr_best = hmr_best.to(device)
-    hmr_best.eval()
-    trainer.hmr_best = hmr_best
-
-
-def compute_optical_flows(model, video, device):
-    of_input = UNNORMALIZE(video).to(device)
-    img1 = of_input[:-1]  # start frames
-    img2 = of_input[1:]  # end frames
-
-    with torch.no_grad():
-        # compute forward optical flow
-        _, opt_flow_forward = model(img1, img2, iters=20, test_mode=True)
-        # compute backward optical flow
-        _, opt_flow_backward = model(img2, img1, iters=20, test_mode=True)
-    return opt_flow_forward, opt_flow_backward
+    setup_finetune(trainer)
 
 
 def train_frame(sample, trainer):
