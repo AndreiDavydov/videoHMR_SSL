@@ -102,8 +102,9 @@ class Dataset2D(Dataset):
                     delta_x = kp_2d[i][:,0][mask_].max() - kp_2d[i][:,0][mask_].min()
                     delta_y = kp_2d[i][:,1][mask_].max() - kp_2d[i][:,1][mask_].min()
                     approp_scale = 1.3
-                    x_scale = bbox[i,2] / delta_x
-                    y_scale = bbox[i,3] / delta_y
+                    tol = 0.0001
+                    x_scale = bbox[i,2] / (delta_x + tol)
+                    y_scale = bbox[i,3] / (delta_y + tol)
                     if x_scale > approp_scale and y_scale > approp_scale:
                         xy_scale = min(x_scale, y_scale)
                         bbox[i,2] = bbox[i,2] / xy_scale * approp_scale

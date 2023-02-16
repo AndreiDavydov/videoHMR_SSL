@@ -1,42 +1,29 @@
-# -*- coding: utf-8 -*-
-
-# Max-Planck-Gesellschaft zur Förderung der Wissenschaften e.V. (MPG) is
-# holder of all proprietary rights on this computer program.
-# You can only use this computer program if you have closed
-# a license agreement with MPG or you get the right to use the computer
-# program from someone who is authorized to grant you that right.
-# Any use of the computer program without a valid license is prohibited and
-# liable to prosecution.
-#
-# Copyright©2019 Max-Planck-Gesellschaft zur Förderung
-# der Wissenschaften e.V. (MPG). acting on behalf of its Max Planck Institute
-# for Intelligent Systems. All rights reserved.
-#
-# Contact: ps-license@tuebingen.mpg.de
-
 import logging
 import os
 import os.path as osp
 
 import joblib
+import json
 import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-# from iopath.common.file_io import PathManager
-# from iopath.fb.manifold import ManifoldPathHandler
+THREEDPW_DIR = "/cvlabdata2/home/davydov/videoHMR_SSL/data/3dpw/3dpw_processed/"
+
+MPII3D_DIR = "/cvlabdata2/home/davydov/videoHMR_SSL/data/mpii3d/"
+
+H36M_DIR = "/cvlabdata2/home/davydov/videoHMR_SSL/data/h36m/"
+ACTIONS = ['Directions','Discussion','Eating','Greeting',
+             'Phoning','Posing','Purchases','Sitting','SittingDown',
+             'Smoking','TakingPhoto', 'Waiting','WalkTogether','Walking','WalkingDog',]
+CAMERAS_CODES = ['54138969', '55011271', '58860488', '60457274']
 
 
-# DB_DIR = "manifold://xr_body/tree/personal/andreydavydov/datasets_3d_processed/"
-DB_DIR = "/cvlabdata2/home/davydov/videoHMR_SSL/data/3dpw/3dpw_processed/"
 from skimage.util.shape import view_as_windows
 
 import src.utils.img_utils_datasets_3d as utils
 
 logger = logging.getLogger(__name__)
-
-# pathmgr = PathManager()
-# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
 
 def split_into_chunks(vid_names, seqlen, stride):
@@ -103,13 +90,29 @@ class Dataset3D(Dataset):
         return self.get_single_item(index)
 
     def load_db(self):
-        db_file = osp.join(DB_DIR, f"{self.set}/{self.dataset_name}_{self.set}_db.pt")
+        if self.dataset_name == "3dpw":
+            db_file = osp.join(THREEDPW_DIR, f"{self.set}/{self.dataset_name}_{self.set}_db.pt")
+        elif self.dataset_name == "mpii3d":
+            db_file = osp.join(MPII3D_DIR, f"{self.dataset_name}_{self.set}_scale12_db.pt")
+        elif self.dataset_name == 'h36m':
+            db_file = osp.join(H36M_DIR, f'{self.dataset_name}_{self.set}_25fps_db.pt')
 
         # db_file = pathmgr.get_local_path(db_file)
         if osp.isfile(db_file):
             db = joblib.load(db_file)
         else:
             raise ValueError(f"{db_file} do not exists")
+
+        if self.dataset_name == "h36m":
+            ### mask samples, some of them are broken
+            with open(f"{H36M_DIR}correct_mask_h36m_{self.set}.json", "r") as f:
+                mask = json.load(f)
+            for k in db:
+                db[k] = db[k][mask]
+
+            ### load video subacts
+            with open(f"{H36M_DIR}video_subacts.json", "r") as f:
+                self.video_subacts = json.load(f)
 
         print(f"Loaded {self.dataset_name} dataset from {db_file}")
         return db
@@ -127,8 +130,23 @@ class Dataset3D(Dataset):
             )
             kp_3d = self.db["joints3D"][start_index : end_index + 1]
 
+        elif self.dataset_name == 'h36m':
+            kp_2d = self.db['joints2D'][start_index:end_index+1]
+            if is_train:
+                kp_3d = self.db['joints3D'][start_index:end_index+1]
+            else:
+                kp_3d = convert_kps(self.db['joints3D'][start_index:end_index+1], src='spin', dst='common')
+
         kp_2d_tensor = np.ones((self.seqlen, 49, 3), dtype=np.float16)
-        nj = 14 if not is_train else 49
+
+        if is_train:
+            nj = 49
+        else:
+            if self.dataset_name == 'mpii3d':
+                nj = 17
+            else:
+                nj = 14
+
         kp_3d_tensor = np.zeros((self.seqlen, nj, 3), dtype=np.float16)
 
         if self.dataset_name == "3dpw":
@@ -136,6 +154,18 @@ class Dataset3D(Dataset):
             shape = self.db["shape"][start_index : end_index + 1]
             w_smpl = torch.ones(self.seqlen).float()
             w_3d = torch.ones(self.seqlen).float()
+        elif self.dataset_name == 'h36m':
+            if not is_train:
+                pose = np.zeros((kp_2d.shape[0], 72))
+                shape = np.zeros((kp_2d.shape[0], 10))
+                w_smpl = torch.zeros(self.seqlen).float()
+                w_3d = torch.ones(self.seqlen).float()
+            else:
+                pose = self.db['pose'][start_index:end_index+1]
+                shape = self.db['shape'][start_index:end_index+1]
+                # SMPL parameters obtained by NeuralAnnot is released now! - 06/17/2022
+                w_smpl = torch.ones(self.seqlen).float()
+                w_3d = torch.ones(self.seqlen).float()
 
         bbox = self.db["bbox"][start_index : end_index + 1]
         input = torch.from_numpy(
@@ -171,9 +201,7 @@ class Dataset3D(Dataset):
         target = {
             "features": input,
             "theta": torch.from_numpy(theta_tensor).float(),  # camera, pose and shape
-            "kp_2d": torch.from_numpy(
-                kp_2d_tensor
-            ).float(),  # 2D keypoints transformed according to bbox cropping
+            "kp_2d": torch.from_numpy(kp_2d_tensor).float(),  # 2D keypoints transformed according to bbox cropping
             "kp_3d": torch.from_numpy(kp_3d_tensor).float(),  # 3D keypoints
             "w_smpl": w_smpl,
             "w_3d": w_3d,
@@ -183,13 +211,22 @@ class Dataset3D(Dataset):
             vn = self.db["vid_name"][start_index : end_index + 1]
             fi = self.db["frame_id"][start_index : end_index + 1]
             target["instance_id"] = [f"{v}/{f}" for v, f in zip(vn, fi)]
+            
+            # if self.dataset_name == '3dpw' and not self.is_train:
+            # target['imgname'] = self.db['img_name'][start_index:end_index+1].tolist()
+            # target['imgname'] = np.array(target['imgname'])
+            # print(target['imgname'].dtype)
+            # target['center'] = self.db['bbox'][start_index:end_index+1, :2]
+            # target['valid'] = torch.from_numpy(self.db['valid'][start_index:end_index+1])
 
-        # if self.dataset_name == '3dpw' and not self.is_train:
-        # target['imgname'] = self.db['img_name'][start_index:end_index+1].tolist()
-        # target['imgname'] = np.array(target['imgname'])
-        # print(target['imgname'].dtype)
-        # target['center'] = self.db['bbox'][start_index:end_index+1, :2]
-        # target['valid'] = torch.from_numpy(self.db['valid'][start_index:end_index+1])
+        elif self.dataset_name == "h36m": # and not is_train:
+            imgname = (self.db["img_name"][start_index : end_index + 1]).tolist()
+            target['imgname_old'] = imgname.copy()
+            target['imgname'] = []
+            for imgname_ in imgname:
+                subj, action, subact, cam, frame = parse_h36m_imgname(imgname_, self.video_subacts)
+                imgname_ = combine_imgname(subj, action, subact, cam, frame, root=self.folder)
+                target['imgname'].append(imgname_)
 
         ### add attr-s to reconstruct GT smpl bodies aligned with bbox image
         target["bbox"] = bbox
@@ -198,9 +235,8 @@ class Dataset3D(Dataset):
 
             if self.dataset_name == "mpii3d":
                 video = self.db["img_name"][start_index : end_index + 1]
-                # print(video)
             elif self.dataset_name == "h36m":
-                video = self.db["img_name"][start_index : end_index + 1]
+                video = target['imgname'].copy()
             else:
                 vid_name = self.db["vid_name"][start_index]
                 vid_name = "_".join(vid_name.split("_")[:-1])
@@ -231,6 +267,37 @@ class Dataset3D(Dataset):
         
         return target
 
+
+def parse_h36m_imgname(imgname, video_subacts):
+    subj = int(imgname.split("_act_")[0].split("s_")[-1])
+    subj = f"S{subj}"
+
+    action = int(imgname.split("_act_")[-1].split("_subact_")[0]) - 2
+    action = ACTIONS[action]
+
+    subact = int(imgname.split("_subact_")[-1].split("_ca_")[0])
+    subact = get_subact(subj, action, subact, video_subacts)
+
+    cam = int(imgname.split("_ca_")[-1][:2]) - 1
+    cam = CAMERAS_CODES[cam]
+    
+    frame = int(imgname.split("_")[-1][:-4])
+
+    return subj, action, subact, cam, frame 
+
+
+def get_subact(subj, action, subact_id, video_subacts):
+    """
+    subact_id : always either 1 or 2
+    video_subacts : dict of existing (videos) subacts of H36M
+    """
+    return video_subacts[subj][action][subact_id-1]
+    
+
+def combine_imgname(subj, action, subact, cam, frame, root):
+    line = os.path.join(root, subj, "Images", f"{action}{subact}.{cam}_{frame:012}.jpg")
+    return line
+    
 
 COMMON_JOINT_NAMES = [
     "rankle",  # 0  "lankle",    # 0
