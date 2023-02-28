@@ -194,3 +194,12 @@ def get_hmr(smpl_mean_params=SMPL_MEAN_PARAMS, pretrained=True, **kwargs):
         resnet_imagenet = resnet.resnet50(pretrained=True)
         model.load_state_dict(resnet_imagenet.state_dict(), strict=False)
     return model
+
+
+def get_hmr_pretrained(ckpt_path, state_dict_key="hmrnet_state_dict"):
+    ### load hmrnet
+    hmrnet = get_hmr(pretrained=True)
+    ckpt = torch.load(ckpt_path, map_location="cpu")
+    hmrnet.load_state_dict(ckpt[state_dict_key])
+    hmrnet.eval()
+    return hmrnet
