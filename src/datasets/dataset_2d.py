@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class Dataset2D(Dataset):
-    def __init__(self, seqlen, overlap=0., folder=None, dataset_name=None, debug=True, output_types=None):
+    def __init__(self, seqlen, overlap=0., folder=None, dataset_name=None, debug=True, use_OFformat=False, videoOF_format=640, output_types=None):
 
         self.set = 'train'
         self.folder = folder
@@ -45,6 +45,9 @@ class Dataset2D(Dataset):
         self.vid_indices = split_into_chunks(self.db['vid_name'], seqlen, self.stride)
 
         self.output_types = output_types
+
+        self.use_OFformat = use_OFformat
+        self.videoOF_format = videoOF_format
 
     def __len__(self):
         return len(self.vid_indices)
@@ -171,7 +174,8 @@ class Dataset2D(Dataset):
             
             if self.dataset_name == 'pennaction':
                 frame_idxs = [frame_id.split("/")[-1] for frame_id in frame_idxs]
-                video = [osp.join(f, frame_id) for frame_id in frame_idxs]
+                video_files = [osp.join(f, frame_id) for frame_id in frame_idxs]
+                target['imgname'] = video_files.copy()
             else:
                 raise NotImplementedError
             # if self.dataset_name == 'pennaction' or self.dataset_name == 'posetrack':
@@ -179,11 +183,22 @@ class Dataset2D(Dataset):
             # else:
             #     video = [video_file_list[i] for i in frame_idxs]
             video = torch.cat(
-                [utils.get_single_image_crop(image, bbox).unsqueeze(0) for image, bbox in zip(video, bbox)], dim=0
+                [utils.get_single_image_crop(image, bbox).unsqueeze(0) for image, bbox in zip(video_files, bbox)], dim=0
             )
 
             target['video'] = video
 
+            if self.use_OFformat:
+                videoOF = torch.cat([
+                    utils.get_single_image_crop(
+                        image, 
+                        bbox, 
+                        patch_width=self.videoOF_format, 
+                        patch_height=self.videoOF_format).unsqueeze(0)
+                    for image, bbox in zip(video_files, bbox)],dim=0,)
+
+                target["videoOF"] = videoOF
+                
         target_up = {}
         if self.output_types is not None:
             for output_type in self.output_types:

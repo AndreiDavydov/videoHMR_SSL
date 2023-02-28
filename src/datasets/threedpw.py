@@ -1,37 +1,12 @@
-# pylint: disable=too-many-arguments
 # taken from https://github.com/hongsukchoi/TCMR_RELEASE/blob/master/lib/dataset/threedpw.py
 
-# import os
-# import shutil
-
-# from iopath.common.file_io import PathManager
-# from iopath.fb.manifold import ManifoldPathHandler
 from src.datasets.dataset_3d import Dataset3D
 
-# pathmgr = PathManager()
-# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
-
-# THREEDPW_DIR = "manifold://xr_body/tree/personal/andreydavydov/3dpw/"
-# THREEDPW_DIR_LOCAL = "/tmp/3dpw/"
 THREEDPW_DIR = "/cvlabdata2/home/davydov/videoHMR_SSL/data/3dpw/3dpw_original"
 
 
 class ThreeDPW(Dataset3D):
-    # def __init__(self, set, seqlen, overlap=0.75, debug=False):#, copy_to_local=True):
-    def __init__(self, set, seqlen, overlap=0.0, debug=True, output_types=None):#, copy_to_local=True):
-        # if copy_to_local:
-        #     ### copy zip to local
-        #     images_zip = pathmgr.get_local_path(
-        #         os.path.join(THREEDPW_DIR, "imageFiles.zip")
-        #     )
-        #     ### unarchive
-        #     if not os.path.exists(os.path.join(THREEDPW_DIR_LOCAL, "imageFiles")):
-        #         os.makedirs(THREEDPW_DIR_LOCAL)
-        #         shutil.unpack_archive(images_zip, THREEDPW_DIR_LOCAL)
-
-        #     image_files_dir = THREEDPW_DIR_LOCAL
-        # else:
-        #     image_files_dir = THREEDPW_DIR
+    def __init__(self, set, seqlen, overlap=0.0, debug=True, use_OFformat=False, videoOF_format=640, output_types=None):
         image_files_dir = THREEDPW_DIR
 
         db_name = "3dpw"
@@ -48,6 +23,8 @@ class ThreeDPW(Dataset3D):
             overlap=overlap,
             dataset_name=db_name,
             debug=debug,
+            use_OFformat=use_OFformat,
+            videoOF_format=videoOF_format,
             output_types=output_types
         )
         print(f"{db_name} - number of dataset objects {self.__len__()}")

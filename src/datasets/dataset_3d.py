@@ -70,7 +70,7 @@ def convert_kps(joints2d, src, dst):
 
 class Dataset3D(Dataset):
     def __init__(
-        self, set, seqlen, overlap=0.0, folder=None, dataset_name=None, debug=False, output_types=None
+        self, set, seqlen, overlap=0.0, folder=None, dataset_name=None, debug=False, use_OFformat=False, videoOF_format=640, output_types=None
     ):
         self.folder = folder
         self.set = set
@@ -82,6 +82,9 @@ class Dataset3D(Dataset):
         self.vid_indices = split_into_chunks(self.db["vid_name"], self.seqlen, self.stride)
 
         self.output_types = output_types
+
+        self.use_OFformat = use_OFformat
+        self.videoOF_format = videoOF_format
 
     def __len__(self):
         return len(self.vid_indices)
@@ -238,9 +241,9 @@ class Dataset3D(Dataset):
         if self.debug:
 
             if self.dataset_name == "mpii3d":
-                video = self.db["img_name"][start_index : end_index + 1]
+                video_files = self.db["img_name"][start_index : end_index + 1]
             elif self.dataset_name == "h36m":
-                video = target['imgname'].copy()
+                video_files = target['imgname'].copy()
             else:
                 vid_name = self.db["vid_name"][start_index]
                 vid_name = "_".join(vid_name.split("_")[:-1])
@@ -250,18 +253,25 @@ class Dataset3D(Dataset):
                 ]
                 frame_idxs = self.db["frame_id"][start_index : end_index + 1]
                 # print(f, frame_idxs)
-                video = [video_file_list[i] for i in frame_idxs]
-
-            # video = [pathmgr.get_local_path(frame) for frame in video]
-            video = torch.cat(
-                [
+                video_files = [video_file_list[i] for i in frame_idxs]
+                target['imgname'] = video_files.copy()
+            
+            video = torch.cat([
                     utils.get_single_image_crop(image, bbox).unsqueeze(0)
-                    for image, bbox in zip(video, bbox)
-                ],
-                dim=0,
-            )
+                    for image, bbox in zip(video_files, bbox)],dim=0,)
 
             target["video"] = video
+
+            if self.use_OFformat:
+                videoOF = torch.cat([
+                    utils.get_single_image_crop(
+                        image, 
+                        bbox, 
+                        patch_width=self.videoOF_format, 
+                        patch_height=self.videoOF_format).unsqueeze(0)
+                    for image, bbox in zip(video_files, bbox)],dim=0,)
+
+                target["videoOF"] = videoOF
 
         target_up = {}
         if self.output_types is not None:
