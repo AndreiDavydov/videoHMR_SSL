@@ -8,7 +8,53 @@ from src.functional.renderer import (
 )
 
 
-def unproject_optical_flows_to_vertices(
+def unproject_optical_flows_to_vertices(verts3d, of, faces, cameras):
+    """
+    Args:
+        verts3d (torch.tensor) B x N x 3 - mesh vertices, start/end together.
+            X,Y coordinates are in pixels.
+        of (torch.tensor) B x 2 x H x W - optical flow
+            (e.g., from the pretrained optical flow predictor)
+        faces (torch.LongTensor) 1 x Ntri x 3 - faces indices for mesh
+            Must be copied to batch size.
+    Output:
+        unproj_flow2d B x N x 2 - 2d flow unprojected on (assigned to) vertices
+        vis_mask B x N - {0., 1.} mask of vertex visibility
+    """
+    ### map coordinates to NDC format
+    img_size = of.size()[-2:]
+    batch_size = verts3d.size(0)
+    n_verts = verts3d.size(1)
+    faces_batch = faces.repeat(batch_size, 1, 1).to(verts3d.device)
+    verts3d = fit_vertices_to_orthographic(verts3d, img_size=img_size)
+    meshes = convert_vertices_to_mesh(verts3d, faces_batch)
+
+    ### compute visibility mask
+    vis_mask = get_vertex_visibility_mask(meshes, cameras, img_size)
+    vis_mask = vis_mask.view(verts3d.size(0), verts3d.size(1))
+
+    ### unproject optical flow to vertices
+    unproj_flow2d = unproject_to_vertices(of, verts3d)
+    return unproj_flow2d, vis_mask
+
+
+def get_of(model, frames_start, frames_end, device):
+    """
+    Compute optical flow using off-the-shelf model.
+    
+    NOTE: frames_start and frames_end should be unnormalized! 
+    """
+    img1 = frames_start.to(device)
+    img2 = frames_end.to(device)
+
+    with torch.no_grad():
+        # compute optical flow
+        _, opt_flow = model(img1, img2, iters=20, test_mode=True)
+    return opt_flow
+    
+
+### OLD
+def unproject_optical_flows_to_vertices_Batch_sequence(
     verts3d, of_forward, of_backward, faces, cameras
 ):
     """
