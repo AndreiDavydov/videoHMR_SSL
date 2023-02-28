@@ -110,6 +110,10 @@ class Dataset3D(Dataset):
             for k in db:
                 db[k] = db[k][mask]
 
+            ### take every second frame, otherwise frames are too similar
+            for k in db:
+                db[k] = db[k][::2]
+
             ### load video subacts
             with open(f"{H36M_DIR}video_subacts.json", "r") as f:
                 self.video_subacts = json.load(f)
