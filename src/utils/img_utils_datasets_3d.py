@@ -117,7 +117,7 @@ def normalize_2d_kp(kp_2d, crop_size=224, inv=False):
     return kp_2d
 
 
-def get_single_image_crop(image, bbox, scale=1.3):
+def get_single_image_crop(image, bbox, scale=1.3, patch_width=224, patch_height=224):
     if isinstance(image, str):
         if os.path.isfile(image):
             image = cv2.cvtColor(cv2.imread(image), cv2.COLOR_BGR2RGB)
@@ -135,8 +135,8 @@ def get_single_image_crop(image, bbox, scale=1.3):
         c_y=bbox[1],
         bb_width=bbox[2],
         bb_height=bbox[3],
-        patch_width=224,
-        patch_height=224,
+        patch_width=patch_width,
+        patch_height=patch_height,
         do_flip=False,
         scale=scale,
         rot=0,
