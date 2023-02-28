@@ -206,3 +206,13 @@ def render_mesh_onto_image_batch(
     blend_img = render_img * alpha_mask + img * (1 - alpha_mask)
 
     return blend_img.cpu()
+
+
+def make_square_grid(x, sq_side):
+    '''
+    x : side*side x H x W x 3
+    '''
+    x = x.view(sq_side, sq_side, x.size(1), x.size(2), x.size(3))
+    x = torch.cat(list(x), dim=2)
+    x = torch.cat(list(x), dim=0)
+    return x
