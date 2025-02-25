@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class Dataset2D(Dataset):
-    def __init__(self, seqlen, overlap=0., folder=None, dataset_name=None, debug=True, use_OFformat=False, videoOF_format=640, output_types=None):
+    def __init__(self, seqlen, overlap=0., folder=None, dataset_name=None, debug=True, use_OFformat=False, videoOF_format=640, color_distort=False, output_types=None):
 
         self.set = 'train'
         self.folder = folder
@@ -48,6 +48,7 @@ class Dataset2D(Dataset):
 
         self.use_OFformat = use_OFformat
         self.videoOF_format = videoOF_format
+        self.color_distort = color_distort
 
     def __len__(self):
         return len(self.vid_indices)
@@ -117,7 +118,7 @@ class Dataset2D(Dataset):
         ### keep original bbox-s, before cropping and scaling                
         kp_2d_orig = kp_2d.copy() 
 
-        input = torch.from_numpy(self.get_sequence(start_index, end_index, self.db['features'])).float()
+        features = torch.from_numpy(self.get_sequence(start_index, end_index, self.db['features'])).float()
 
         for idx in range(self.seqlen):
             # crop image and transform 2d keypoints
@@ -145,10 +146,10 @@ class Dataset2D(Dataset):
         # )
         target = {
             "kp_2d_orig" : kp_2d_orig,
-            'features': input,
+            'features': features,
             'kp_2d': torch.from_numpy(kp_2d_tensor).float(),
             # 'kp_2d': torch.from_numpy(kp_2d_tensor).float()[self.mid_frame].repeat(repeat_num, 1, 1), # 2D keypoints transformed according to bbox cropping
-            'instance_id': instance_id,
+            # 'instance_id': instance_id,
             'bbox' : bbox
         }
 
@@ -183,7 +184,7 @@ class Dataset2D(Dataset):
             # else:
             #     video = [video_file_list[i] for i in frame_idxs]
             video = torch.cat(
-                [utils.get_single_image_crop(image, bbox).unsqueeze(0) for image, bbox in zip(video_files, bbox)], dim=0
+                [utils.get_single_image_crop(image, bbox, color_distort=self.color_distort).unsqueeze(0) for image, bbox in zip(video_files, bbox)], dim=0
             )
 
             target['video'] = video
@@ -204,6 +205,6 @@ class Dataset2D(Dataset):
             for output_type in self.output_types:
                 target_up[output_type] = target[output_type]
             return target_up
-        
+
         return target
 

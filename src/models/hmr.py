@@ -8,13 +8,7 @@ import torch
 import torch.nn as nn
 import torchvision.models.resnet as resnet
 
-# from iopath.common.file_io import PathManager
-# from iopath.fb.manifold import ManifoldPathHandler
-
 from src.functional.geometry import rot6d_to_rotmat
-
-# pathmgr = PathManager()
-# pathmgr.register_handler(ManifoldPathHandler(), allow_override=True)
 
 SMPL_MEAN_PARAMS = "/cvlabdata2/home/davydov/videoHMR_SSL/data/smpl_data/smpl_mean_params.npz"
 

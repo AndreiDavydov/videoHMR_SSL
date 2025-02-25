@@ -15,6 +15,9 @@ from src.functional.renderer import (
     unproject_to_vertices,
 )
 from src.functional.hmr import hmr_inference
+from src.models.hmr_temporal import hmr_inference_w_context
+from pytorch3d.transforms import matrix_to_axis_angle
+
 from src.utils.vis_utils import render_mesh_onto_image_batch, make_square_grid
 
 from src.functional.optical_flow import unproject_optical_flows_to_vertices, get_of
@@ -29,43 +32,57 @@ def train_video(sample, trainer):
     ### turn off BN 
     trainer.models.hmrnet.eval()
 
-    # take one video sequence: B x seqlen==2 x 3 x 224 x 224
+    # take one video sequence: B x seqlen==ctx_len+1 x 3 x 224 x 224
     img = sample["video"]
     batch_size = img.size(0)
     img_size = img.size(-1)
 
-    ### compute optical flows
-    of_forward = get_of(trainer.optical_flow_model, UNNORMALIZE(img[:,0]), UNNORMALIZE(img[:,1]), device)
-    of_backward = get_of(trainer.optical_flow_model, UNNORMALIZE(img[:,1]), UNNORMALIZE(img[:,0]), device)
+    ### compute optical flows between last and second last frames
+    of_forward = get_of(trainer.optical_flow_model, UNNORMALIZE(img[:,-2]), UNNORMALIZE(img[:,-1]), device)
+    of_backward = get_of(trainer.optical_flow_model, UNNORMALIZE(img[:,-1]), UNNORMALIZE(img[:,-2]), device)
 
-    ### inference
+    ctx_len = trainer.models.filmnet.module.ctx_len
+    img_wo_context = img[:, :ctx_len]
+
+    ### prepare the context
     out = hmr_inference(
-        img.flatten(start_dim=0, end_dim=1).to(device,non_blocking=True), 
+        img_wo_context.flatten(start_dim=0, end_dim=1).to(device,non_blocking=True), 
         trainer.models.hmrnet, 
         trainer.smpl_model_49
         )
+    ctx_aa = matrix_to_axis_angle(out['smpl_rotmat']).flatten(start_dim=1)
+    ctx = torch.cat((ctx_aa, out['smpl_shape'], out['camera']), dim=-1)
+    ctx = ctx.view(batch_size, ctx_len, -1)
     verts3d = out['verts3d']
-    verts3d = verts3d.view(batch_size, 2, verts3d.size(-2), 3)
+    verts3d_2nd_last = verts3d.view(batch_size, -1, verts3d.size(-2), 3)[:,-1] # take 2nd last verts
 
-    unproj_flow2d_forward, vis_mask_forward   = unproject_optical_flows_to_vertices(verts3d[:,0], of_forward, trainer.smpl_model_faces, trainer.cameras)
-    unproj_flow2d_backward, vis_mask_backward = unproject_optical_flows_to_vertices(verts3d[:,1], of_backward, trainer.smpl_model_faces, trainer.cameras)
-    ###  mask should be the intersection
-    vis_mask = vis_mask_forward * vis_mask_backward  # B x N
+    gammas, betas = trainer.models.filmnet(ctx.detach())  # detach the context (?)
+
+    ### inference with context
+    out = hmr_inference_w_context(
+        img[:, -1].to(device,non_blocking=True), 
+        gammas, betas, 
+        trainer.models.hmrnet.module, 
+        trainer.smpl_model_49)
+
+    verts3d_last = out['verts3d']
+
+    unproj_flow2d_forward, vis_mask_forward = unproject_optical_flows_to_vertices(
+        verts3d_2nd_last, of_forward, 
+        trainer.smpl_model_faces, 
+        trainer.cameras)
+    vis_mask = vis_mask_forward  # B x N
     
-    verts_flow2d_forward  = verts3d[:, -1, :, :2] - verts3d[:, 0, :, :2]
-    verts_flow2d_backward = verts3d[:, 0, :, :2] - verts3d[:, -1, :, :2]
+    verts_flow2d_forward  = verts3d_last[..., :2] - verts3d_last[..., :2]
 
     loss = 0
 
-    ### Flow 2d - compute in both time-directions and average
+    ### Flow 2d - compute only forward
     if trainer.losses_weights.flow_2d > 0:
         flow_2d_forward = trainer.losses.flow_2d(
             verts_flow2d_forward, unproj_flow2d_forward, vis_mask
         )
-        flow_2d_backward = trainer.losses.flow_2d(
-            verts_flow2d_backward, unproj_flow2d_backward, vis_mask
-        )
-        flow_2d = (flow_2d_forward + flow_2d_backward) / 2
+        flow_2d = flow_2d_forward
         loss += flow_2d * trainer.losses_weights.flow_2d
         trainer.meters.train.flow_2d.update_raw(flow_2d.item())
 

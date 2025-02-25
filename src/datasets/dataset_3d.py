@@ -70,7 +70,7 @@ def convert_kps(joints2d, src, dst):
 
 class Dataset3D(Dataset):
     def __init__(
-        self, set, seqlen, overlap=0.0, folder=None, dataset_name=None, debug=False, use_OFformat=False, videoOF_format=640, output_types=None
+        self, set, seqlen, overlap=0.0, folder=None, dataset_name=None, debug=False, use_OFformat=False, videoOF_format=640, color_distort=False, output_types=None
     ):
         self.folder = folder
         self.set = set
@@ -85,6 +85,7 @@ class Dataset3D(Dataset):
 
         self.use_OFformat = use_OFformat
         self.videoOF_format = videoOF_format
+        self.color_distort = color_distort
 
     def __len__(self):
         return len(self.vid_indices)
@@ -257,7 +258,7 @@ class Dataset3D(Dataset):
                 target['imgname'] = video_files.copy()
             
             video = torch.cat([
-                    utils.get_single_image_crop(image, bbox).unsqueeze(0)
+                    utils.get_single_image_crop(image, bbox, color_distort=self.color_distort).unsqueeze(0)
                     for image, bbox in zip(video_files, bbox)],dim=0,)
 
             target["video"] = video

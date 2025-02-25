@@ -168,7 +168,9 @@ class Trainer:
         for model in self.models:
 
             key = model + "_state_dict"
-            assert key in ckpt, f"=> No key '{key}' in ckpt!"
+            if key not in ckpt: 
+                self.logger.info(f"=> No key '{key}' in ckpt!")
+                continue
 
             try:
                 self.models[model].module.load_state_dict(ckpt[key], strict=False)

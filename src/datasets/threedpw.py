@@ -6,7 +6,7 @@ THREEDPW_DIR = "/cvlabdata2/home/davydov/videoHMR_SSL/data/3dpw/3dpw_original"
 
 
 class ThreeDPW(Dataset3D):
-    def __init__(self, set, seqlen, overlap=0.0, debug=True, use_OFformat=False, videoOF_format=640, output_types=None):
+    def __init__(self, set, seqlen, overlap=0.0, debug=True, use_OFformat=False, videoOF_format=640, color_distort=False, output_types=None):
         image_files_dir = THREEDPW_DIR
 
         db_name = "3dpw"
@@ -25,6 +25,7 @@ class ThreeDPW(Dataset3D):
             debug=debug,
             use_OFformat=use_OFformat,
             videoOF_format=videoOF_format,
+            color_distort=color_distort,
             output_types=output_types
         )
         print(f"{db_name} - number of dataset objects {self.__len__()}")

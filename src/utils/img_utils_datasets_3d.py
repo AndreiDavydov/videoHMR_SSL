@@ -117,7 +117,7 @@ def normalize_2d_kp(kp_2d, crop_size=224, inv=False):
     return kp_2d
 
 
-def get_single_image_crop(image, bbox, scale=1.3, patch_width=224, patch_height=224):
+def get_single_image_crop(image, bbox, scale=1.3, patch_width=224, patch_height=224, color_distort=False):
     if isinstance(image, str):
         if os.path.isfile(image):
             image = cv2.cvtColor(cv2.imread(image), cv2.COLOR_BGR2RGB)
@@ -141,6 +141,14 @@ def get_single_image_crop(image, bbox, scale=1.3, patch_width=224, patch_height=
         scale=scale,
         rot=0,
     )
+
+    if color_distort:
+        # taken from coco_eft aug
+        noise_factor = 0.4
+        pn = np.random.uniform(1 - noise_factor, 1 + noise_factor, 3)
+        # in the rgb image we add pixel noise in a channel-wise manner
+        for c in range(3):
+            crop_image[:, :, c] = np.minimum(255.0, np.maximum(0.0, crop_image[:, :, c] * pn[c]))
 
     crop_image = convert_cvimg_to_tensor(crop_image)
 

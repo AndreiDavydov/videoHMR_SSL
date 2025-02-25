@@ -8,18 +8,10 @@ import src
 from src.datasets.datasets_common import UNNORMALIZE
 from src.procedures.procedures_common import status_msg
 
-from src.functional.renderer import (
-    convert_vertices_to_mesh,
-    fit_vertices_to_orthographic,
-    get_vertex_visibility_mask,
-    unproject_to_vertices,
-)
 from src.functional.hmr import hmr_inference
-from src.utils.vis_utils import render_mesh_onto_image_batch, make_square_grid
-
 from src.functional.optical_flow import unproject_optical_flows_to_vertices, get_of
 from src.procedures.procedures.finetune_hmr_ssl_w_single_frame_gt import setup, train_frame
-from src.procedures.procedures.eval_hmr import valid as eval_on_3dpw
+from src.procedures.procedures.finetune_hmr_ssl_w_single_frame_gt_seqlen2 import valid
 
 
 def train_video(sample, trainer):
@@ -29,26 +21,32 @@ def train_video(sample, trainer):
     ### turn off BN 
     trainer.models.hmrnet.eval()
 
-    # take one video sequence: B x seqlen==2 x 3 x 224 x 224
-    img = sample["video"]
+    # take one video sequence: B x seqlen==2 x 3 x H x W
+    img = sample["videoOF"]
     batch_size = img.size(0)
-    img_size = img.size(-1)
+    img_HR_size = img.size(-1)
 
     ### compute optical flows
     of_forward = get_of(trainer.optical_flow_model, UNNORMALIZE(img[:,0]), UNNORMALIZE(img[:,1]), device)
     of_backward = get_of(trainer.optical_flow_model, UNNORMALIZE(img[:,1]), UNNORMALIZE(img[:,0]), device)
 
     ### inference
+    img = sample["video"]
+    img_LR_size = img.size(-1)
     out = hmr_inference(
         img.flatten(start_dim=0, end_dim=1).to(device,non_blocking=True), 
         trainer.models.hmrnet, 
         trainer.smpl_model_49
         )
     verts3d = out['verts3d']
-    verts3d = verts3d.view(batch_size, 2, verts3d.size(-2), 3)
+    verts3d = verts3d.view(batch_size, 2, verts3d.size(-2), 3) # aligned with low-res images
 
-    unproj_flow2d_forward, vis_mask_forward   = unproject_optical_flows_to_vertices(verts3d[:,0], of_forward, trainer.smpl_model_faces, trainer.cameras)
-    unproj_flow2d_backward, vis_mask_backward = unproject_optical_flows_to_vertices(verts3d[:,1], of_backward, trainer.smpl_model_faces, trainer.cameras)
+    s = img_HR_size / img_LR_size
+
+    unproj_flow2d_forward, vis_mask_forward   = unproject_optical_flows_to_vertices(verts3d[:,0] * s, of_forward, trainer.smpl_model_faces, trainer.cameras)
+    unproj_flow2d_backward, vis_mask_backward = unproject_optical_flows_to_vertices(verts3d[:,1] * s, of_backward, trainer.smpl_model_faces, trainer.cameras)
+    unproj_flow2d_forward = unproj_flow2d_forward / s
+    unproj_flow2d_backward = unproj_flow2d_backward / s
     ###  mask should be the intersection
     vis_mask = vis_mask_forward * vis_mask_backward  # B x N
     
@@ -97,45 +95,3 @@ def train(trainer):
         total_time = time() - absolute_start
         status_msg(trainer, batch_idx, dl_len, trainer.meters.train.full, total_time)
         if batch_idx != dl_len: trainer.meters.train.full.epochends()
-    
-
-def valid(trainer):
-    trainer.logger.info("=> Plot images of train_video dataset...")
-    ### save intermediate figs
-    sq_side = 5 
-    
-    dset = trainer.datasets.train_video
-    dataload = torch.utils.data.DataLoader(dset, batch_size=sq_side**2, num_workers=0, shuffle=True)
-    for sample in dataload:
-        break
-    img = sample['video'][:,0]
-
-    with torch.no_grad():
-        out = hmr_inference(
-            img.to(trainer.device0), 
-            trainer.models.hmrnet, 
-            trainer.smpl_model_49
-        )
-    
-    rendered_imgs = render_mesh_onto_image_batch(
-        UNNORMALIZE(img), 
-        out["verts3d"].detach(), 
-        faces=trainer.smpl_model_faces.repeat(img.size(0),1,1).to(trainer.device0), 
-        device=trainer.device0)
-
-    rendered_imgs = make_square_grid(rendered_imgs, sq_side=sq_side)
-
-    ### save in folder figs/epoch_<epoch>.png
-    savepath = os.path.join(trainer.final_output_dir, "figs")
-    os.makedirs(savepath, exist_ok=True)
-
-    savepath = os.path.join(savepath, f"ep_{trainer.cur_epoch:05}.png")
-    plt.imsave(savepath, rendered_imgs.numpy())
-    trainer.logger.info(f"=> saved in {savepath}")
-
-
-    ### evaluation on 3DPW
-    trainer.logger.info("=> Evaluate on 3DPW test set...")
-    pa_mpjpe = eval_on_3dpw(trainer)
-
-    return pa_mpjpe
