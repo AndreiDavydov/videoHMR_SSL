@@ -1,0 +1,60 @@
+GPUS : '1'
+
+OUTPUT_DIR : '/cvlabdata2/home/davydov/ode-human-motion-prior/output/eval_hmr'
+
+MODELS :
+  hmrnet :
+    DIR : 'hmr'
+    ARCH : 'get_hmr'
+    PARAMS :
+      pretrained : True
+
+SMPL :
+  j_regr : 'h36m' # J14
+
+DATASETS :
+  eval :
+    DIR : 'threedpw'
+    NAME : 'ThreeDPW'
+    PARAMS :
+      set : "test"
+      seqlen : 16
+      debug : True
+
+DATALOAD :
+  eval :
+    PARAMS :
+      shuffle : False
+      batch_size : 1
+      num_workers : 32
+
+LOSSES :
+  mpjpe :
+    DIR : 'pose_eval'
+    NAME : 'MPJPE'
+  pa_mpjpe :
+    DIR : 'pose_eval'
+    NAME : 'PAMPJPE'
+  mpvpe :
+    DIR : 'pose_eval'
+    NAME : 'MPVPE'
+  accel :
+    DIR : 'pose_eval'
+    NAME : 'Acceleration'
+  accel_err :
+    DIR : 'pose_eval'
+    NAME : 'AccelerationError'
+
+TRAINING :
+  END_EPOCH : 1 # evaluation
+  RESUME :
+    CKPT : "/cvlabdata2/home/davydov/videoHMR_SSL/eft_model_zoo/coco-all.pt" # EFT
+    # CKPT : "/cvlabdata2/home/davydov/tuch/data/tuch_model_checkpoint_fix.pt" # TUCH
+    # CKPT : "/cvlabdata2/home/davydov/tuch/data/spin_model_checkpoint_fix.pt" # SPIN
+    LOAD_MODELS_ONLY : True
+
+SAVE_OUT : "/cvlabdata2/home/davydov/ode-human-motion-prior/precomputed/eft_inference__3dpw_test__seqlen16__pred_verts.pt"
+EXP_NAME : 'eft'
+
+PROCEDURE : 'eval_hmr_selfcontact'
+VALID_FIRST : True

@@ -1,0 +1,60 @@
+GPUS : '0'
+
+OUTPUT_DIR : '/cvlabdata2/home/davydov/videoHMR_SSL/output/eval_hmr_train'
+
+MODELS :
+  hmrnet :
+    DIR : 'hmr'
+    ARCH : 'get_hmr'
+    PARAMS :
+      pretrained : True
+
+SMPL :
+  j_regr : 'extra' # J49
+
+DATASETS :
+  eval :
+    DIR : 'threedpw'
+    NAME : 'ThreeDPW'
+    PARAMS :
+      set : "train"
+      seqlen : 16
+      debug : True
+
+DATALOAD :
+  eval :
+    PARAMS :
+      shuffle : False
+      batch_size : 1
+      num_workers : 32
+
+LOSSES :
+  mpjpe :
+    DIR : 'pose_eval'
+    NAME : 'MPJPE'
+  pa_mpjpe :
+    DIR : 'pose_eval'
+    NAME : 'PAMPJPE'
+  mpvpe :
+    DIR : 'pose_eval'
+    NAME : 'MPVPE'
+  accel :
+    DIR : 'pose_eval'
+    NAME : 'Acceleration'
+  accel_err :
+    DIR : 'pose_eval'
+    NAME : 'AccelerationError'
+
+TRAINING :
+  END_EPOCH : 1 # evaluation
+  RESUME :
+    # CKPT : "/cvlabdata2/home/davydov/videoHMR_SSL/eft_model_zoo/coco-all.pt"
+    CKPT : "/cvlabdata2/home/davydov/videoHMR_SSL/output/finetune_hmr_ssl_w_single_frame_gt/finetune_hmr_ssl_w_single_frame_gt_lr1e-5_w_frame_1_ofc_1000/ckpt.pth"
+    LOAD_MODELS_ONLY : True
+
+
+PROCEDURE : 'eval_hmr'
+
+EXP_NAME : 'eval_hmr__eft_cocoall__test_ofc_1_1000'
+
+VALID_FIRST : True

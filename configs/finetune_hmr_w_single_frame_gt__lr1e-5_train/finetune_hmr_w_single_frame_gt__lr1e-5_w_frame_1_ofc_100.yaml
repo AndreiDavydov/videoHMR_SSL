@@ -1,0 +1,165 @@
+GPUS : '1'
+PRINT_FREQ : 200
+SAVE_EVERY_EPOCH : 100
+ADD_TIMESTAMP : False
+
+OUTPUT_DIR : '/cvlabdata2/home/davydov/videoHMR_SSL/output/finetune_hmr_ssl_w_single_frame_gt_train'
+
+MODELS :
+  hmrnet :
+    DIR : 'hmr'
+    ARCH : 'get_hmr'
+    PARAMS :
+      pretrained : True
+
+LOSSES : 
+  ### old EFT part 
+  smpl_pose_loss :
+    DIR : 'train_hmr'
+    NAME : 'SmplPoseLoss'
+    WEIGHT : 1.
+  smpl_shape_loss :
+    DIR : 'train_hmr'
+    NAME : 'SmplShapeLoss'
+    WEIGHT : 0.001
+  smpl_shape_prior_loss :
+    DIR : 'train_hmr'
+    NAME : 'SmplShapePriorLoss'
+    WEIGHT : 1.
+  kpts2d_loss :
+    DIR : 'train_hmr'
+    NAME : 'Kpts2dLoss'
+    WEIGHT : 5.
+  kpts3d_loss :
+    DIR : 'train_hmr'
+    NAME : 'Kpts3dLoss'
+    WEIGHT : 5.
+  camera_scale_reg_loss :
+    DIR : 'train_hmr'
+    NAME : 'CameraScaleRegLoss'
+    WEIGHT : 1.
+
+  ### new OFC guided part
+  shape_cons :
+    DIR : 'dummy'
+    NAME : 'DummyLoss'
+    WEIGHT : 1.
+  j3d_cons :
+    DIR : 'dummy'
+    NAME : 'DummyLoss'
+    WEIGHT : 1.
+  shape_smooth :
+    DIR : 'seq_optim'
+    NAME : 'AvgSmoother'
+    WEIGHT : 0.
+    PARAMS :
+      kernel_size : 30
+      data_consistency_w : 0.5
+  j3d_smooth :
+    DIR : 'seq_optim'
+    NAME : 'AvgSmoother'
+    WEIGHT : 0.
+    PARAMS :
+      kernel_size : 30
+      data_consistency_w : 0.5
+  flow_2d :
+    DIR : 'optical_flow'
+    NAME : 'Flow2DLoss'
+    WEIGHT : 0.0001
+
+  ### these are the trackers mostly
+  pose2d :
+    DIR : 'pose_eval'
+    NAME : 'Keypoint2DPixelAlignment'
+
+  mpjpe :
+    DIR : 'pose_eval'
+    NAME : 'MPJPE'
+  pa_mpjpe :
+    DIR : 'pose_eval'
+    NAME : 'PAMPJPE'
+  mpvpe :
+    DIR : 'pose_eval'
+    NAME : 'MPVPE'
+  accel :
+    DIR : 'pose_eval'
+    NAME : 'Acceleration'
+  accel_err :
+    DIR : 'pose_eval'
+    NAME : 'AccelerationError'
+
+OPTIM :
+  hmrnet :
+    NAME : 'Adam'
+    PARAMS :
+      lr : 0.00001
+      betas : [0.5, 0.999]
+      weight_decay : 0
+
+# SCHED :
+
+DATASETS :
+  train_frame :
+        DIR : 'coco_eft'
+        NAME : 'COCO_EFT'
+  train_video :
+    DIR : 'threedpw'
+    NAME : 'ThreeDPW'
+    PARAMS :
+      set : "train"
+      seqlen : 16
+      debug : True
+  # valid :
+  #   DIR : 'coco_eft'
+  #   NAME : 'COCO_EFT'
+  #   PARAMS :
+  #       is_train : False
+  eval :
+    DIR : 'threedpw'
+    NAME : 'ThreeDPW'
+    PARAMS :
+      set : "test"
+      seqlen : 16
+      debug : True
+
+
+DATALOAD :
+  train_frame :
+    PARAMS :
+      shuffle : True
+      batch_size : 16 
+      num_workers : 16
+  train_video :
+    PARAMS :
+      shuffle : True
+      batch_size : 1
+      num_workers : 16
+  multidl : 
+      dls : ["train_frame", "train_video"]
+      NUM_ITERATIONS_PER_EPOCH : 1000
+  # valid :
+  #   PARAMS :
+  #     shuffle : False
+  #     batch_size : 32
+  #     num_workers : 0
+  eval :
+    PARAMS :
+      shuffle : False
+      batch_size : 1
+      num_workers : 16
+
+TRAINING :
+  END_EPOCH : 100
+  RESUME : 
+    CKPT : "/cvlabdata2/home/davydov/videoHMR_SSL/eft_model_zoo/coco-all.pt"
+    LOAD_MODELS_ONLY : True
+
+
+PROCEDURE : 'finetune_hmr_ssl_w_single_frame_gt'
+
+W_FRAME : 1.
+W_OFC : 100.
+
+EXP_NAME : 'finetune_hmr_ssl_w_single_frame_gt_train_lr1e-5_w_frame_1_ofc_100'
+
+VALID_FIRST : True

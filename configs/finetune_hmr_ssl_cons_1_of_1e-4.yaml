@@ -1,0 +1,112 @@
+GPUS : '0'
+PRINT_FREQ : 200
+SAVE_EVERY_EPOCH : 100
+ADD_TIMESTAMP : False
+
+OUTPUT_DIR : '/cvlabdata2/home/davydov/videoHMR_SSL/output/finetune_hmr_ssl'
+
+MODELS :
+  hmrnet :
+    DIR : 'hmr'
+    ARCH : 'get_hmr'
+    PARAMS :
+      pretrained : True
+
+LOSSES :
+  shape_cons :
+    DIR : 'dummy'
+    NAME : 'DummyLoss'
+    WEIGHT : 1.
+  j3d_cons :
+    DIR : 'dummy'
+    NAME : 'DummyLoss'
+    WEIGHT : 1.
+  shape_smooth :
+    DIR : 'seq_optim'
+    NAME : 'AvgSmoother'
+    WEIGHT : 0.
+    PARAMS :
+      kernel_size : 30
+      data_consistency_w : 0.5
+  j3d_smooth :
+    DIR : 'seq_optim'
+    NAME : 'AvgSmoother'
+    WEIGHT : 0.
+    PARAMS :
+      kernel_size : 30
+      data_consistency_w : 0.5
+  flow_2d :
+    DIR : 'optical_flow'
+    NAME : 'Flow2DLoss'
+    WEIGHT : 0.0001
+
+  ### these are the trackers mostly
+  pose2d :
+    DIR : 'pose_eval'
+    NAME : 'Keypoint2DPixelAlignment'
+  mpjpe :
+    DIR : 'pose_eval'
+    NAME : 'MPJPE'
+  pa_mpjpe :
+    DIR : 'pose_eval'
+    NAME : 'PAMPJPE'
+  mpvpe :
+    DIR : 'pose_eval'
+    NAME : 'MPVPE'
+  accel :
+    DIR : 'pose_eval'
+    NAME : 'Acceleration'
+  accel_err :
+    DIR : 'pose_eval'
+    NAME : 'AccelerationError'
+
+OPTIM :
+  hmrnet :
+    NAME : 'Adam'
+    PARAMS :
+      lr : 0.00001
+      betas : [0.5, 0.999]
+      weight_decay : 0
+
+DATASETS :
+  video_finetune :
+    DIR : 'threedpw'
+    NAME : 'ThreeDPW'
+    PARAMS :
+      set : "test" # "train" - to see an improvement on the test set! 
+      seqlen : 16
+      debug : True
+  eval :
+    DIR : 'threedpw'
+    NAME : 'ThreeDPW'
+    PARAMS :
+      set : "test"
+      seqlen : 16
+      debug : True
+
+DATALOAD :
+  video_finetune :
+    NUM_ITERATIONS_PER_EPOCH : 1000
+    PARAMS :
+      shuffle : True
+      batch_size : 1
+      num_workers : 32
+  eval :
+    PARAMS :
+      shuffle : False
+      batch_size : 1
+      num_workers : 32
+
+TRAINING :
+  END_EPOCH : 100
+  RESUME :
+    CKPT : "/cvlabdata2/home/davydov/videoHMR_SSL/eft_model_zoo/coco-all.pt"
+    LOAD_MODELS_ONLY : True
+
+of_delta : 1  ### time step between frames
+
+PROCEDURE : 'finetune_hmr_ssl'
+
+EXP_NAME : 'finetune_hmr_ssl_test__lr1e-5___cons_1__of_1e-4'
+
+VALID_FIRST : True
